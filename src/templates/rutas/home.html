@@ -1,0 +1,13 @@
+<html>
+<head> <title>Rutas</title>
+</head>
+<body>
+  <h1>Rutas</h1>
+  <p>Las rutas que tenemos son:</p>
+  <ul>
+  {% for ruta in rutas %}
+    <li>Ruta: {{ruta.nombre}}, Tipo: {{ruta.categoria}}</li>
+  {% endfor %}
+  </ul>
+</body>
+</html>
