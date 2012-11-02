@@ -15,6 +15,9 @@ class Ruta(models.Model):
     def __unicode__(self):
         return self.nombre 
 
+class RutaUsuarios(Ruta):
+     evaluacion = models.IntegerField()
+     descrEval = models.CharField(max_length=1000)
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=30)
