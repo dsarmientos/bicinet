@@ -5,23 +5,52 @@ class arco(models.Model):
     osmId = models.CharField(max_length=30)
     origen = models.IntegerField()
     destino = models.IntegerField()
-    # geomet = ppygis.Geometry()
-    
+
+class CampoCosto(models.Model):
+    nombre = models.CharField(max_length=30)
+    descripcion =  models.CharField(max_length=254)
+
+    def __unicode__(self):
+        return self.nombre 
+
+class valoresCampo(models.Model):
+    nombreCampo = models.ForeignKey('CampoCosto')
+    valor = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.valor 
+
+
+class TipoPreferencia(models.Model):
+    nombre = models.CharField(max_length=30)
+    descripcion = models.CharField(max_length=254)
+
+    def __unicode__(self):
+        return self.nombre 
+
+
+class CostPreferencia(models.Model):
+    usuario = models.CharField(max_length=30)
+    tipoPreferencia = models.ForeignKey('TipoPreferencia')
+    valorCampo = models.ForeignKey('valoresCampo')
+    costo = models.IntegerField()
+
+class CategoriaRuta(models.Model):
+    nombre = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.nombre 
 
 class Ruta(models.Model):
     nombre = models.CharField(max_length=30)
-    categoria = models.ForeignKey('Categoria')
+    categoria = models.ForeignKey('CategoriaRuta')
 
     def __unicode__(self):
         return self.nombre 
 
-class RutaUsuarios(Ruta):
+class RutaUsuario(Ruta):
      evaluacion = models.IntegerField()
      descrEval = models.CharField(max_length=1000)
 
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=30)
 
-    def __unicode__(self):
-        return self.nombre 
 
