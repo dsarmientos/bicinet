@@ -10,28 +10,28 @@ def home(request):
 
 
 def findNearestEdge(latitud, longitud):
-    resultado = Arco()
-    flatitudini = float(latitud)
-    flongitudini = float(longitud)
+    latitudini = float(latitud)
+    longitudini = float(longitud)
 
-    flatitudinid = flatitudini - 0.1
-    flatitudinit = flatitudini + 0.1
-    flongitudinid = flongitudini - 0.1
-    flongitudinit = flongitudini + 0.1
+    latitudinid = latitudini - 0.1
+    latitudinit = latitudini + 0.1
+    longitudinid = longitudini - 0.1
+    longitudinit = longitudini + 0.1
 
-    stringSQL = "SELECT osm_id, source, target, way, ST_Distance(way, ST_GeometryFromText( 'POINT("  + str(flatitudini)
-    stringSQL = stringSQL + " " + str(flongitudini) + ")',4326)) AS dist FROM ways"
-    stringSQL = stringSQL + " Where way && setsrid( 'BOX3D("  + str(flatitudinid) + " " + str(flatitudinit) + ", " + str(flongitudinid) + " " 
-    stringSQL = stringSQL + str(flongitudinit) + ")'::box3d, 4326) ORDER BY dist LIMIT 1"
+    stringSQL = "SELECT osm_id, source, target, way, ST_Distance(way, ST_GeometryFromText( 'POINT("  + str(latitudini)
+    stringSQL = stringSQL + " " + str(longitudini) + ")',4326)) AS dist FROM ways"
+    stringSQL = stringSQL + " Where way && setsrid( 'BOX3D("  + str(latitudinid) + " " + str(latitudinit) + ", " + str(longitudinid) + " "
+    stringSQL = stringSQL + str(longitudinit) + ")'::box3d, 4326) ORDER BY dist LIMIT 1"
     cursor = connection.cursor()
     cursor.execute(stringSQL)
 
-    for fila in cursor.fetchall():
-       resultado.osmId = fila[0]
-       resultado.origen = fila[1]
-       resultado.destino = fila[2]
-
+    fila = cursor.fetchone()
+    resultado = {}
+    if fila:
+        resultado.update(
+            {'osmId': fila[0], 'origen': fila[1], 'destino':fila[2]})
     return resultado
+
 
 def routingExec(request):
     if request.method == 'POST':
@@ -64,7 +64,6 @@ def routingExec(request):
             cursor.execute(stringSQL)
 
             for fila in cursor.fetchall():
-          
                resultado.osmId = fila[0]
                resultado.origen = fila[1]
                resultado.destino = fila[2]
