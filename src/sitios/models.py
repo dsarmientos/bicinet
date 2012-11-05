@@ -20,14 +20,14 @@ class CategoriaSitio(models.Model):
 class Sitio(models.Model):
     nombre = models.CharField(max_length=30)
     confirmado = models.BooleanField()
-    fechaConfirmado = models.DateField(auto_now=false)
+    fechaConfirmado = models.DateField(auto_now = False)
     categoria = models.ForeignKey('CategoriaSitio')
     punto = models.ForeignKey('Punto')
 
     def __unicode__(self):
         return self.nombre 
 
-class TipoIncidente(models.model):
+class TipoIncidente(models.Model):
     nombre = models.CharField(max_length=30)
     descripcion = models.CharField(max_length=254)
 
@@ -35,9 +35,9 @@ class TipoIncidente(models.model):
         return self.nombre 
 
 
-class incidente(models.model):
+class incidente(models.Model):
     tipoIncidente = models.ForeignKey('TipoIncidente')
-    fechaHoraReporte = models.DateTimeField(auto_now_add = true)
+    fechaHoraReporte = models.DateTimeField(auto_now_add = True)
     reportadoPor = models.CharField(max_length=30)
     comentarios = models.CharField(max_length=254)
 

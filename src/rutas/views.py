@@ -45,17 +45,17 @@ def routingExec(request):
 
         metodo = request.POST.get('Metodo', '')
         if metodo == "SPD":
-            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
+            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(ST_Transform(rt.ways,4326)) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
             stringSQL = stringSQL + " (SELECT osm_id, ways from dijkstra_sp_delta('ways'," + str(arcoIni.Origen) + "," 
             stringSQL = stringSQL + str(arcoFin.destino) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
 
         elif metodo == "SPA":
-            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
+            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(ST_Transform(rt.ways,4326)) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
             stringSQL = stringSQL + " (SELECT osm_id, ways from start_sp_delta('ways'," + str(arcoIni.Origen) + "," 
             stringSQL = stringSQL + str(arcoFin.destino) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
 
         elif metodo == "SPS":
-            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
+            stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(ST_Transform(rt.ways,4326)) as geojson, lenght(rt.ways) as lenght, t1.osm_id from ways t1, "
             stringSQL = stringSQL + " (SELECT osm_id, ways from shootingstar_sp('ways'," + str(arcoIni.Origen) + "," 
             stringSQL = stringSQL + str(arcoFin.destino) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
 
