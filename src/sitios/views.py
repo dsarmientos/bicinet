@@ -10,7 +10,6 @@ def findNearSites(latitud, longitud, tipoSitio, radio):
     longitudini = float(longitud)
     radioN = float(radio)
 
-
     stringSQL = "SELECT osm_id, amenity, name, ST_AsGeoJSON(way)"
     stringSQL = stringSQL + " " + "FROM planet_osm_point" 
     stringSQL = stringSQL + " " + "WHERE ST_Within(way, ST_Buffer(ST_Transform(ST_GeomFromText('POINT(" + str(longitudini) 
