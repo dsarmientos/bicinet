@@ -40,7 +40,7 @@ def routingExec(longIni, latIni, longFin, latFin):
     arcoIni = findNearestEdge(longIni, latIni)
     arcoFin = findNearestEdge(longFin, latFin)
     stringSQL =  """
-        SELECT rd.osm_id, ST_AsGeoJSON(rd.the_geom) as geojson, rt.cost as cost, rd.name
+        SELECT rd.osm_id, ST_AsGeoJSON(ST_Transform(rd.the_geom,900913)) as geojson, rt.cost as cost, rd.name
         FROM osm_2po_4pgr t1,
             (SELECT vertex_id, cost
              FROM shortest_path('
@@ -70,7 +70,7 @@ def routingExec(longIni, latIni, longFin, latFin):
         # construye el arreglo que especifica la proyeccion en la que vienen los datos
         crs = {
             'type': 'EPSG',
-            'properties': {'code':'4326'},
+            'properties': {'code':'900913'},
         }
         nombre = fila[3] if fila[3] else ''
         properties = {
