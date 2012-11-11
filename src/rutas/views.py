@@ -1,7 +1,10 @@
+import json
+
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from rutas.models import Ruta
 from django.db import connection, transaction
+
 import ppygis
 
 def home(request):
@@ -9,116 +12,84 @@ def home(request):
     return render_to_response('rutas/home.html', {'rutas': rutas})
 
 
-def findNearestEdge(latitud, longitud):
-
-
-    stringSQL = "select ST_X(ST_Transform(ST_GeomFromText('POINT(" + longitud + " " +  latitud + " )', 4326), 900913))"
-    cursor = connection.cursor()
-    cursor.execute(stringSQL)
-    fila = cursor.fetchone()
-    longitudini = fila[0]
-   
-    stringSQL = "select ST_Y(ST_Transform(ST_GeomFromText('POINT(" + longitud + " " +  latitud + " )', 4326), 900913))"
-    cursor = connection.cursor()
-    cursor.execute(stringSQL)
-    fila = cursor.fetchone()
-    latitudini = fila[0]
-
-    latitudinid = latitudini - 0.01
-    latitudinit = latitudini + 0.01
-    longitudinid = longitudini - 0.01
-    longitudinit = longitudini + 0.01
-
-    stringSQL = "SELECT osm_id, source, target, way, ST_Distance(way, ST_GeometryFromText( 'POINT("  + str(longitudini)
-    stringSQL = stringSQL + " " + str(latitudini) + ")',900913)) AS dist FROM ways ORDER BY dist LIMIT 1"
-    cursor = connection.cursor()
-    cursor.execute(stringSQL)
-
-    print(stringSQL)
-
-    fila = cursor.fetchone()
+def findNearestEdge(longitud, latitud):
+    tol= 0.001
+    latitud_inf, longitud_inf = latitud -tol, longitud - tol
+    latitud_sup, longitud_sup = latitud + tol, longitud + tol
+    stringSQL = """SELECT osm_id, source, target, geom_way,
+                    ST_Distance(geom_way,
+                    ST_GeometryFromText('POINT(%s %s)', 4326)) AS dist, id
+                    FROM osm_2po_4pgr
+                    WHERE  geom_way && setsrid('BOX3D(%s %s, %s %s)'::box3d, 4326)
+                    ORDER BY dist LIMIT 1"""
+    parametrosSQL = (longitud, latitud, longitud_inf, latitud_inf, longitud_sup,
+                     latitud_sup)
+    columnas = ('osmId', 'origen', 'destino', 'id')
     resultado = {}
 
+    cursor = connection.cursor()
+    cursor.execute(stringSQL, parametrosSQL)
+    fila = cursor.fetchone()
+    cursor.close()
     if fila:
-         resultado.update({'osmId': fila[0], 'origen': fila[1], 'destino':fila[2]})  
-    else:
-         resultado.update({'osmId': -1, 'origen': -1, 'destino': -1 })
-
+        resultado = dict(zip(columnas, (fila[0], fila[1], fila[2], fila[5])))
     return resultado
 
 
-def routingExec(latIni, longIni, latFin, longFin, metodo ):
-    
-    arcoIni = findNearestEdge(latIni, longIni)
-    arcoFin = findNearestEdge(latFin, longFin)
+def routingExec(longIni, latIni, longFin, latFin):
+    arcoIni = findNearestEdge(longIni, latIni)
+    arcoFin = findNearestEdge(longFin, latFin)
+    stringSQL =  """
+        SELECT rd.osm_id, ST_AsGeoJSON(rd.the_geom) as geojson, rt.cost as cost, rd.name
+        FROM osm_2po_4pgr t1,
+            (SELECT vertex_id, cost
+             FROM shortest_path('
+                     SELECT osm_id AS id,
+                        source::int4,
+                        target::int4,
+                        cost
+                     FROM osm_2po_4pgr',
+                     %s, %s, false, false))
+            as rt, roads rd
+        WHERE rt.vertex_id = t1.source
+            AND rd.osm_id = t1.osm_id"""
+    parametrosSQL = (arcoIni['origen'], arcoFin['destino'])
+    cursor = connection.cursor()
+    cursor.execute(stringSQL, parametrosSQL)
+    # Defino el resultado como diccionario
+    resultado = {}
+    resultado.update({'type': 'FeatureCollection'})
+    features = []
+    segmentos = 0
 
-    print arcoIni
-    print arcoFin
+    for fila in cursor.fetchall():
+        feature = {}
+        feature.update({'type': 'Feature'})
+        feature.update({'geometry': json.loads(fila[1]) })
 
-    if metodo == "SPD":
-        stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id, t1.name from ways t1, "
-        stringSQL = stringSQL + " (SELECT osm_id, ways from dijkstra_sp_delta('ways'," + str(arcoIni["origen"]) + "," 
-        stringSQL = stringSQL + str(arcoFin["destino"]) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
+        # construye el arreglo que especifica la proyeccion en la que vienen los datos
+        crs = {
+            'type': 'EPSG',
+            'properties': {'code':'4326'},
+        }
+        nombre = fila[3] if fila[3] else ''
+        properties = {
+            'id': fila[0],
+            'length': fila[2],
+            'nombre': nombre,
+        }
 
-    elif metodo == "SPA":
-        stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id, t1.name from ways t1, "
-        stringSQL = stringSQL + " (SELECT osm_id, ways from start_sp_delta('ways'," + str(arcoIni["origen"]) + "," 
-        stringSQL = stringSQL + str(arcoFin["destino"]) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
+        feature.update({'crs': crs } )
+        feature.update({'properties' : properties})
+        features.append(feature)
+        # El elemento features es a la vez un diccionario
+        resultado.update({'features': features } )
+        segmentos = segmentos + 1
 
-    elif metodo == "SPS":
-        stringSQL = "SELECT rt.osm_id, ST_AsGeoJSON(rt.ways) as geojson, lenght(rt.ways) as lenght, t1.osm_id, t1.name from ways t1, "
-        stringSQL = stringSQL + " (SELECT osm_id, ways from shootingstar_sp('ways'," + str(arcoIni["origen"]) + "," 
-        stringSQL = stringSQL + str(arcoFin["destino"]) + ", 0.1 ) as rt where t1.osm_id = rt.osm_id " 
-
-    print stringSQL
-    if stringSQL != "":
-        cursor = connection.cursor()
-        cursor.execute(stringSQL)
-
-        # Defino el resultado como diccionario
-        resultado = {}
-        resultado.update({'type': 'FeatureCollection'})
-        features = []
-        segmentos = 0
-
-        for fila in cursor.fetchall():
-      
-            feature = {}
-            feature.update({'type': 'Feature'})
-            feature.update({'geometry': json.loads(fila[1]) })
-
-            # construye el arreglo que especifica la proyeccion en la que vienen los datos
-            crs = {}
-            crs.update({'type': 'EPSG' })
-            crs.update({'properties': {'code' : '900913' } } )
-
-            properties = {}
-            properties.update({'id': fila[0]})
-            properties.update({'length': fila[2]})
-
-            if ( fila[4] is not None ) and ( len(fila[4]) > 0 ):
-                 properties.update({'nombre': fila[4]})
-            else:
-                 properties.update({'nombre': ' ' })
-
-            feature.update({'crs': crs } )
-            feature.update({'properties' : properties})
-            features.append(feature)
-         
-            # El elemento features es a la vez un diccionario
-            resultado.update({'features': features } )
-            segmentos = segmentos + 1
-
-        if segmentos == 0:
-            resultado.update({'Encontrado': 'False'})
-        else:
-            resultado.update({'Encontrado': 'True'})
-        
-    else:
-
-        resultado = {}
-        resultado.update({'type': 'FeatureCollection'})
+    if segmentos == 0:
         resultado.update({'Encontrado': 'False'})
+    else:
+        resultado.update({'Encontrado': 'True'})
 
     return json.dumps(resultado)
 
