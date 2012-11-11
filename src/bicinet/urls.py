@@ -1,18 +1,25 @@
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
     url(r'^rutas/$', 'rutas.views.home', name='home_rutas'),
-    url(r'^sitios/cerca/$', 'sitios.views.sitios_cerca', name='sitios_cerca'),
-    # url(r'^rutas/buscador$', 'rutas.views.buscador', name='buscador_rutas'),
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^sitios/buscador/$', 'sitios.views.buscador', name='sitios_buscador'),
 
-    # Uncomment the next line to enable the admin:
+    url(r'^api/sitios/cerca/$', 'api.views.sitios_cerca', name='api_sitios_cerca'),
+
     url(r'^admin/', include(admin.site.urls)),
 )
+
+
+from django.conf import settings
+## debug stuff to serve static media
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root':
+                '/home/daniel/bicinet/static/'}),
+   )
+
