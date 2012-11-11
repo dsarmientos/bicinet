@@ -8,7 +8,7 @@ def findNearestSites(latitud, longitud, tipoSitio, radio):
     longitudini = float(longitud)
     radioN = float(radio)
 
-    stringSQL = "SELECT osm_id, type, name, ST_AsGeoJSON(the_geom)"
+    stringSQL = "SELECT osm_id, type, name, ST_AsGeoJSON(ST_Transform(the_geom,900913))"
     stringSQL = stringSQL + " " + "FROM points"
     stringSQL = stringSQL + " " + "WHERE ST_Within(the_geom, ST_buffer(ST_GeomFromText('POINT(" + str(longitudini)
     stringSQL = stringSQL + " " + " " + str(latitudini) + ")', 4326) , " + str(radioN) + " , 'quad_segs=4'))"
@@ -31,7 +31,7 @@ def findNearestSites(latitud, longitud, tipoSitio, radio):
          # construye el arreglo que especifica la proyeccion en la que vienen los datos
          crs = {}
          crs.update({'type': 'EPSG' })
-         crs.update({'properties': {'code' : '4326' } } )
+         crs.update({'properties': {'code' : '900913' } } )
 
          properties = {}
          properties.update({'id': fila[0]})
