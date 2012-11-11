@@ -1,48 +1,8 @@
-
 <html xmlns="http://www.w3.org/1999/xhtml">
-
   <head>
-
     <title>OpenLayers 2.6 Popup Labels and Transformation</title>
-
-
-
-   <meta name="author" content="Arnd Wippermann">
-
-   <meta name="publisher" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
-
-   <meta name="copyright" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
-
-   <meta name="description" content="example of feature transformation with proj4js, feature labels using OpenLayers Popup">
-
-   <meta name="keywords" content="Google Maps, OpenLayers, mapping, gis, transformation, projection, labels, popups">
-
-   <meta name="page-topic" content="mapping">
-
-   <meta name="page-type" content="map">
-
-   <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-
-   <meta http-equiv="content-language" content="en">
-
-   <meta name="robots" content="index, follow">
-
-   <meta name="DC.Creator" content="Arnd Wippermann">
-
-   <meta name="DC.Publisher" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
-
-   <meta name="DC.Rights" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
-
-   <meta name="DC.Description" content="example of feature transformation with proj4js, feature labels using OpenLayers Popup">
-
-   <meta name="DC.Language" content="en">
-
-
-
     <link rel="stylesheet" href="../theme/default/style.css" type="text/css" />
-
     <style type="text/css">
-
         body{
 
             font-family:Arial;
@@ -58,85 +18,61 @@
             border: 1px solid black;
 
         }
-
-
-
-.olPopupContent {
-
-     padding:0px;
-
-     background-color: 'transparent';
-
-     overflow: auto;
-
-}
-
-.mypopuphtml{
-
-     padding-left:5px;
-
-     padding-top:0px;
-
-     padding-bottom:0px;
-
-     padding-right:5px;
-
-     font-family:Arial;
-
-     font-size:8pt;
-
-     background-color:white;
-
-}
-
+     .olPopupContent {
+          padding:0px;
+     
+          background-color: 'transparent';
+     
+          overflow: auto;
+     }
+     .mypopuphtml{
+          padding-left:5px;
+     
+          padding-top:0px;
+     
+          padding-bottom:0px;
+     
+          padding-right:5px;
+     
+          font-family:Arial;
+     
+          font-size:8pt;
+     
+          background-color:white;
+     }
     </style>
-
-
-
+    
     <!-- Key für gis.ibbeck.de -->
-
-    <script src="http://maps.google.com/maps?file=api&amp;v=2.93&amp;key=ABQIAAAAPaKjvz57Y0S6WBMn1VBY3hRxOXTwvMiggV2cS06R5a_zKRpeehRKur1ZfEiN6cw-_RBbJpD6Wj7a9Q" type="text/javascript"></script>
-
+    <script src="http://maps.google.com/maps?file=api&amp;v=2.93&amp;key=AIzaSyBJ5MVSO41EkE03ClSYDFd1KMRwoinzNek" type="text/javascript"></script>
     <!-- this gmaps key generated for http://openlayers.org/dev/ -->
-
 <!--
-
     <script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjpkAC9ePGem0lIq5XcMiuhR_wWLPFku8Ix9i2SXYRVK3e45q1BQUd_beF8dtzKET_EteAjPdGDwqpQ'></script>
 
--->
-
-    <script type="text/javascript" src="../lib/OpenLayers2.6.full.js"></script>
-
     <script type="text/javascript" src="javascript/drag.js"></script>
-
-    <script type="text/javascript" src="../lib/proj4js/proj4js.js"></script>
-
-    <SCRIPT type="text/javascript" src="../lib/proj4js/projCode/tmerc.js"></SCRIPT>
-
-    <SCRIPT type="text/javascript" src="../lib/proj4js/projCode/merc.js"></SCRIPT>
-
-    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG31466.js"></SCRIPT>
-
-    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG31467.js"></SCRIPT>
-
-    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG900913.js"></SCRIPT>
-
     <script type="text/javascript" src="javascript/counter.js"></script>
+-->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
+    <script type="text/javascript" src="/static/js/lib/OpenLayers2.6.full.js"></script>
 
+    <script type="text/javascript" src="/static/js/lib/proj4js/proj4js.js"></script>
+
+    <SCRIPT type="text/javascript" src="/static/js/lib/proj4js/projCode/tmerc.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="/static/js/lib/proj4js/projCode/merc.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="/static/js/lib/proj4js/defs/EPSG31466.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="/static/js/lib/proj4js/defs/EPSG31467.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="/static/js/lib/proj4js/defs/EPSG900913.js"></SCRIPT>
 
     <script type="text/javascript">
-
-
-
     OpenLayers.Theme   = "../theme/default/style.css";
-
     OpenLayers.ImgPath     = "../img/";
-
-
+    features = [];
 
 /*
-
 ###########################################################################
 
 Google resolutions array, 2 resolutions added
@@ -339,7 +275,7 @@ function init()
 
           displayProjection: new OpenLayers.Projection("EPSG:4326"),
 
-          theme : "../theme/default/style.css"
+          //theme : "../theme/default/style.css"
 
     });
 
@@ -364,92 +300,6 @@ function init()
     map.addLayers([gphy, gmap, ghyb, gsat]);
 
 
-
-    OL[OL.length] = new OpenLayers.Layer.GML("Towns in NRW (KML)", "kml/TOWNS_IN_NRW_900913.kml",
-
-           {
-
-            format: OpenLayers.Format.KML,
-
-            styleMap:new OpenLayers.StyleMap({fillOpacity: 1,strokeWidth: 3,strokeColor: "#9900FF", pointRadius: 4}),
-
-            formatOptions: {
-
-              extractStyles: false,
-
-              extractAttributes: true
-
-            }
-
-           });
-
-
-
-    OL[OL.length] = new OpenLayers.Layer.GML("Some Towns in NRW (GML)", "gml/SOME_TOWNS_IN_NRW_31466.xml",
-
-           {
-
-            format: OpenLayers.Format.GML,
-
-            styleMap:new OpenLayers.StyleMap({fillOpacity: 0.7, fillColor: randomColor(), strokeWidth: 3,strokeColor: randomColor(), pointRadius: 4}),
-
-            projection: "EPSG:31466",
-
-            formatOptions: {
-
-              extractStyles: false,
-
-              extractAttributes: true
-
-            }
-
-           });
-
-
-
-    OL[OL.length] = new OpenLayers.Layer.GML("Some Features in NRW (KML)", "kml/SOME_FEATURES_IN_NRW_900913.kml",
-
-           {
-
-            format: OpenLayers.Format.KML,
-
-            styleMap:new OpenLayers.StyleMap({fillOpacity: 0.5, fillColor: randomColor(), strokeWidth: 3, strokeColor: '#FF0000', pointRadius: 3}),
-
-            formatOptions: {
-
-              extractStyles: false,
-
-              extractAttributes: true
-
-            }
-
-           });
-
-
-
-    OL[OL.length] = new OpenLayers.Layer.GML("Sundials", "kml/sundials.kml",
-
-           {
-
-            format: OpenLayers.Format.KML,
-
-            projection: "EPSG:4326",
-
-            formatOptions: {
-
-              extractStyles: true,
-
-              extractAttributes: true
-
-            }
-
-           });
-
-
-
-    for(var i=0;i<OL.length;i++)
-
-        map.addLayer(OL[i]);
 
 
 
@@ -603,9 +453,9 @@ function deserialize() //format.read
 
 {
 
-    fromProjection = document.getElementById("epsgFrom").value;
+    fromProjection = 'EPSG:4326';
 
-    toProjection   = document.getElementById("epsgTo").value;
+    toProjection   = 'EPSG:900913';
 
 
 
@@ -633,7 +483,7 @@ function deserialize() //format.read
 
     var element  = document.getElementById('taClpBrd');
 
-    var type     = document.getElementById("formatType").value;
+    var type     = 'geojson';
 
     var theParser = formats[type];
 
@@ -641,7 +491,15 @@ function deserialize() //format.read
 
     theParser.externalProjection = new OpenLayers.Projection(fromProjection);
 
-    var features = theParser.read(element.value);
+    //var features = theParser.read(element.value);
+    $.get('/api/sitios/cerca/',
+		    {latitud:4.6027189,longitud:-74.065304},
+		    function(data, textStatus, jqXHR) {
+			var json_s = JSON.stringify(data);
+			console.log(json_s);
+		        features = theParser.read(json_s);
+	console.log(features);
+
 
     //var bounds;
 
@@ -687,6 +545,7 @@ function deserialize() //format.read
 
         alert('Bad input ' + type);
 
+			});
 }
 
 
@@ -1200,32 +1059,6 @@ function delAktLayer(layer)
 <body onload="init();">
 
 
-
-  <script>
-
-
-
-      var LeftText  = "homepage:gis.ibbeck.de";
-
-      var RightText = "examples:gis.ibbeck.de";
-
-
-
-      var LeftLink  = "http://gis.ibbeck.de/ginfo/";
-
-      var RightLink = "http://gis.ibbeck.de/ginfo/apps/OLExamples/Index/index.html";
-
-
-
-      var MiddleText = "&#160;&#160;-&#160;&#160;OpenLayers Examples by gis.ibbeck.de&#160;&#160;-&#160;&#160;";
-
-
-
-      document.write('<center><div id="fusszeile" onmouseover="this.style.backgroundColor=\'#CCCCCC\';this.style.opacity=1;" onmouseout="this.style.backgroundColor=\'#CCCCCC\';this.style.opacity=0.25;" style="z-index:9999;cursor:pointer;position:absolute;top:0px;left:0px;width:100%;padding-left:0px;background-color:#CCCCCC;opacity:0.25;font-size: 10px; font-weight: bold;"><a href="' + LeftLink + '">' + LeftText + '<\/a><span style="cursor:default">' + MiddleText + '<\/span><a style="color:blue;cursor:pointer;" href="' + RightLink + '">' + RightText + '<\/a><\/div><\/center>');
-
-
-
-  </script>
 
 
 
