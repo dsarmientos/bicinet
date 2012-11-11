@@ -1,14 +1,1315 @@
-<html>
-<head> <title>Rutas</title>
-	<script src="/static/js/sitios.js"></script>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+
+    <title>OpenLayers 2.6 Popup Labels and Transformation</title>
+
+
+
+   <meta name="author" content="Arnd Wippermann">
+
+   <meta name="publisher" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
+
+   <meta name="copyright" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
+
+   <meta name="description" content="example of feature transformation with proj4js, feature labels using OpenLayers Popup">
+
+   <meta name="keywords" content="Google Maps, OpenLayers, mapping, gis, transformation, projection, labels, popups">
+
+   <meta name="page-topic" content="mapping">
+
+   <meta name="page-type" content="map">
+
+   <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+
+   <meta http-equiv="content-language" content="en">
+
+   <meta name="robots" content="index, follow">
+
+   <meta name="DC.Creator" content="Arnd Wippermann">
+
+   <meta name="DC.Publisher" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
+
+   <meta name="DC.Rights" content="IngenieurbÃ¼ro Reinhard Beck GmbH und Co. Kg">
+
+   <meta name="DC.Description" content="example of feature transformation with proj4js, feature labels using OpenLayers Popup">
+
+   <meta name="DC.Language" content="en">
+
+
+
+    <link rel="stylesheet" href="../theme/default/style.css" type="text/css" />
+
+    <style type="text/css">
+
+        body{
+
+            font-family:Arial;
+
+        }
+
+        #map {
+
+            width: 600px;
+
+            height: 400px;
+
+            border: 1px solid black;
+
+        }
+
+
+
+.olPopupContent {
+
+     padding:0px;
+
+     background-color: 'transparent';
+
+     overflow: auto;
+
+}
+
+.mypopuphtml{
+
+     padding-left:5px;
+
+     padding-top:0px;
+
+     padding-bottom:0px;
+
+     padding-right:5px;
+
+     font-family:Arial;
+
+     font-size:8pt;
+
+     background-color:white;
+
+}
+
+    </style>
+
+
+
+    <!-- Key für gis.ibbeck.de -->
+
+    <script src="http://maps.google.com/maps?file=api&amp;v=2.93&amp;key=ABQIAAAAPaKjvz57Y0S6WBMn1VBY3hRxOXTwvMiggV2cS06R5a_zKRpeehRKur1ZfEiN6cw-_RBbJpD6Wj7a9Q" type="text/javascript"></script>
+
+    <!-- this gmaps key generated for http://openlayers.org/dev/ -->
+
+<!--
+
+    <script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjpkAC9ePGem0lIq5XcMiuhR_wWLPFku8Ix9i2SXYRVK3e45q1BQUd_beF8dtzKET_EteAjPdGDwqpQ'></script>
+
+-->
+
+    <script type="text/javascript" src="../lib/OpenLayers2.6.full.js"></script>
+
+    <script type="text/javascript" src="javascript/drag.js"></script>
+
+    <script type="text/javascript" src="../lib/proj4js/proj4js.js"></script>
+
+    <SCRIPT type="text/javascript" src="../lib/proj4js/projCode/tmerc.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="../lib/proj4js/projCode/merc.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG31466.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG31467.js"></SCRIPT>
+
+    <SCRIPT type="text/javascript" src="../lib/proj4js/defs/EPSG900913.js"></SCRIPT>
+
+    <script type="text/javascript" src="javascript/counter.js"></script>
+
+
+
+    <script type="text/javascript">
+
+
+
+    OpenLayers.Theme   = "../theme/default/style.css";
+
+    OpenLayers.ImgPath     = "../img/";
+
+
+
+/*
+
+###########################################################################
+
+Google resolutions array, 2 resolutions added
+
+###########################################################################
+
+*/
+
+OpenLayers.Layer.Google.prototype.RESOLUTIONS = [1.40625,0.703125,0.3515625,0.17578125,0.087890625,0.0439453125,0.02197265625,0.010986328125,0.0054931640625,0.00274658203125,0.001373291015625,0.0006866455078125,0.00034332275390625,0.000171661376953125,0.0000858306884765625,0.0000429153442382812,0.0000214576721191406,0.0000107288360595703,0.00000536441802978516,0.00000268220901489258,0.00000134110450744629,6.70552253723145e-7,3.35276126861572e-7];
+
+OpenLayers.Layer.Google.prototype.MAX_ZOOM_LEVEL = 22;
+
+
+
+    Proj4js.readTransformed = true;
+
+
+
+/*
+
+###########################################################################
+
+start of Proj4js.transform
+
+###########################################################################
+
+*/
+
+Proj4js.transform = function(source, dest, point)
+
+{
+
+    if (!source.readyToUse || !dest.readyToUse) {
+
+        this.reportError("Proj4js initialization for "+source.srsCode+" not yet complete");
+
+        return;
+
+    }
+
+
+
+    // This is the part to get the transformation working
+
+    //  on transformed features if Proj4js.readTransformed==false
+
+    //
+
+    //                    vvvvvvvvvvvvvvvvvvvvvvvvvv
+
+    if (point.transformed && Proj4js.readTransformed) {
+
+      this.log("point already transformed");
+
+      return;
+
+    }
+
+
+
+    // Workaround for Spherical Mercator
+
+    if ((source.srsProjNumber =="900913" && dest.datumCode != "WGS84") ||
+
+        (dest.srsProjNumber == "900913" && source.datumCode != "WGS84")) {
+
+        var wgs84 = Proj4js.WGS84;
+
+        this.transform(source, wgs84, point);
+
+        point.transformed = false;
+
+        source = wgs84;
+
+    }
+
+
+
+    // Transform source points to long/lat, if they aren't already.
+
+    if ( source.projName=="longlat") {
+
+        point.x *= Proj4js.common.D2R;  // convert degrees to radians
+
+        point.y *= Proj4js.common.D2R;
+
+    } else {
+
+        if (source.to_meter) {
+
+            point.x *= source.to_meter;
+
+            point.y *= source.to_meter;
+
+        }
+
+        source.inverse(point); // Convert Cartesian to longlat
+
+    }
+
+
+
+    // Adjust for the prime meridian if necessary
+
+    if (source.from_greenwich) {
+
+        point.x += source.from_greenwich;
+
+    }
+
+
+
+    // Convert datums if needed, and if possible.
+
+    point = this.datum_transform( source.datum, dest.datum, point );
+
+
+
+    // Adjust for the prime meridian if necessary
+
+    if (dest.from_greenwich) {
+
+        point.x -= dest.from_greenwich;
+
+    }
+
+
+
+    if( dest.projName=="longlat" ) {
+
+        // convert radians to decimal degrees
+
+        point.x *= Proj4js.common.R2D;
+
+        point.y *= Proj4js.common.R2D;
+
+    } else  {               // else project
+
+        dest.forward(point);
+
+        if (dest.to_meter) {
+
+            point.x /= dest.to_meter;
+
+            point.y /= dest.to_meter;
+
+        }
+
+    }
+
+    point.transformed = true;
+
+    return point;
+
+} // transform()
+
+/*
+
+###########################################################################
+
+end of Proj4js.transform
+
+###########################################################################
+
+*/
+
+
+
+var map; var x; var y; var userid; var speed; var date; var aktLayer;
+
+var OL = [];
+
+
+
+/*
+
+###########################################################################
+
+init
+
+###########################################################################
+
+*/
+
+function init()
+
+{
+
+    map = new OpenLayers.Map('map',
+
+        { maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+
+          numZoomLevels: 22,
+
+          maxResolution: 156543.0399,
+
+          units: 'm',
+
+          projection: new OpenLayers.Projection("EPSG:900913"),
+
+          displayProjection: new OpenLayers.Projection("EPSG:4326"),
+
+          theme : "../theme/default/style.css"
+
+    });
+
+
+
+    var gphy = new OpenLayers.Layer.Google("Google Physical",  {type: G_PHYSICAL_MAP,  'maxZoomLevel':22, 'sphericalMercator': true});
+
+    var gmap = new OpenLayers.Layer.Google("Google Streets",   {type: G_NORMAL_MAP,    'maxZoomLevel':22, 'sphericalMercator': true});
+
+    var ghyb = new OpenLayers.Layer.Google("Google Hybrid",    {type: G_HYBRID_MAP,    'maxZoomLevel':22, 'sphericalMercator': true});
+
+    var gsat = new OpenLayers.Layer.Google("Google Satellite", {type: G_SATELLITE_MAP, 'maxZoomLevel':22, 'sphericalMercator': true});
+
+
+
+    //var blyr = new OpenLayers.Layer.WMS( "BaseLayer", "baselayer.png");
+
+    //blyr.isBaseLayer=true;
+
+    //map.addLayer(blyr);
+
+    map.addLayers([gphy, gmap, ghyb, gsat]);
+
+
+
+    OL[OL.length] = new OpenLayers.Layer.GML("Towns in NRW (KML)", "kml/TOWNS_IN_NRW_900913.kml",
+
+           {
+
+            format: OpenLayers.Format.KML,
+
+            styleMap:new OpenLayers.StyleMap({fillOpacity: 1,strokeWidth: 3,strokeColor: "#9900FF", pointRadius: 4}),
+
+            formatOptions: {
+
+              extractStyles: false,
+
+              extractAttributes: true
+
+            }
+
+           });
+
+
+
+    OL[OL.length] = new OpenLayers.Layer.GML("Some Towns in NRW (GML)", "gml/SOME_TOWNS_IN_NRW_31466.xml",
+
+           {
+
+            format: OpenLayers.Format.GML,
+
+            styleMap:new OpenLayers.StyleMap({fillOpacity: 0.7, fillColor: randomColor(), strokeWidth: 3,strokeColor: randomColor(), pointRadius: 4}),
+
+            projection: "EPSG:31466",
+
+            formatOptions: {
+
+              extractStyles: false,
+
+              extractAttributes: true
+
+            }
+
+           });
+
+
+
+    OL[OL.length] = new OpenLayers.Layer.GML("Some Features in NRW (KML)", "kml/SOME_FEATURES_IN_NRW_900913.kml",
+
+           {
+
+            format: OpenLayers.Format.KML,
+
+            styleMap:new OpenLayers.StyleMap({fillOpacity: 0.5, fillColor: randomColor(), strokeWidth: 3, strokeColor: '#FF0000', pointRadius: 3}),
+
+            formatOptions: {
+
+              extractStyles: false,
+
+              extractAttributes: true
+
+            }
+
+           });
+
+
+
+    OL[OL.length] = new OpenLayers.Layer.GML("Sundials", "kml/sundials.kml",
+
+           {
+
+            format: OpenLayers.Format.KML,
+
+            projection: "EPSG:4326",
+
+            formatOptions: {
+
+              extractStyles: true,
+
+              extractAttributes: true
+
+            }
+
+           });
+
+
+
+    for(var i=0;i<OL.length;i++)
+
+        map.addLayer(OL[i]);
+
+
+
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
+
+    map.addControl(new OpenLayers.Control.MousePosition({element:document.getElementById("rota"), numdigits:3}));
+
+
+
+    var centerPoint = new OpenLayers.LonLat(7.14,51.26).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913"));
+
+    map.setCenter(centerPoint, 8);
+
+
+
+    document.getElementById("epsg").innerHTML = map.projection;
+
+    populateLayer(6);
+
+
+
+    var Msg = "";
+
+    Msg += "Add Labels to a map using OpenLayers.Popup\r\n\r\n";
+
+    Msg += "The labels can be moved, but after zooming the position will be new calculated.";
+
+    document.getElementById("taClpBrd").value = Msg;
+
+
+
+    map.events.register("changelayer", map, function (e) {
+
+        if(e.layer.visibility == true)
+
+            toggleLabels(1,e.layer);
+
+        else
+
+            toggleLabels(-1,e.layer);
+
+    });
+
+
+
+    /*
+
+    map.events.register("removelayer", map, function (e) {
+
+        alert(e.layer.name);
+
+    });
+
+    */
+
+}
+
+
+
+var debugWin;
+
+
+
+function PopupWindow(Links, Oben, dieBreite, dieHoehe, dieUrl, targetValue)
+
+{
+
+    // neues Fenster öffnen
+
+
+
+    var szWinStyle = new String ("");
+
+    szWinStyle =  'toolbar=no, location=no, directories=no, status=yes, menubar=no, scrollbars=yes, resizable=yes';
+
+    szWinStyle += ', top=' + Oben + ', left=' + Links + ', width=' + dieBreite + 'px, height=' + dieHoehe +'px';
+
+
+
+    debugWin = window.open (dieUrl, targetValue, szWinStyle);
+
+    debugWin.focus();
+
+    WinHandlesArr[WinHandlesArr.length] = debugWin;
+
+
+
+    return(true);
+
+}
+
+
+
+//globales Array für Fenster handles
+
+var WinHandlesArr = new Array(); //debug:0
+
+
+
+window.onunload = function ()
+
+{
+
+    for(var i=0;i<WinHandlesArr.length;i++)
+
+    {   if(WinHandlesArr[i]!=0)
+
+        {   if(!WinHandlesArr[i].closed)
+
+                WinHandlesArr[i].close();
+
+        }
+
+    }
+
+}
+
+
+
+var formats = {
+
+    wkt:     new OpenLayers.Format.WKT(),
+
+    geojson: new OpenLayers.Format.GeoJSON(),
+
+    georss:  new OpenLayers.Format.GeoRSS(),
+
+    gml:     new OpenLayers.Format.GML(),
+
+    kml:     new OpenLayers.Format.KML()
+
+};
+
+
+
+/*
+
+###########################################################################
+
+
+
+format.read with transform, features will created on new vector layer
+
+
+
+###########################################################################
+
+*/
+
+function deserialize() //format.read
+
+{
+
+    fromProjection = document.getElementById("epsgFrom").value;
+
+    toProjection   = document.getElementById("epsgTo").value;
+
+
+
+    OL[OL.length] = new OpenLayers.Layer.Vector("Layer "+OL.length+", "+fromProjection);
+
+    OL[OL.length-1].styleMap = new OpenLayers.StyleMap({fillOpacity: 0.5, fillColor: randomColor(), strokeWidth: 3,strokeColor: randomColor(), pointRadius: 3});
+
+/*
+
+    if(map.projection!=fromProjection)
+
+        OL[OL.length-1].projection = new OpenLayers.Projection(fromProjection);
+
+*/
+
+    map.addLayer(OL[OL.length-1]);
+
+    populateLayer(map.layers.length-1);
+
+
+
+    var vectors = map.layers[map.layers.length-1];
+
+
+
+    var element  = document.getElementById('taClpBrd');
+
+    var type     = document.getElementById("formatType").value;
+
+    var theParser = formats[type];
+
+    theParser.internalProjection = new OpenLayers.Projection(toProjection);
+
+    theParser.externalProjection = new OpenLayers.Projection(fromProjection);
+
+    var features = theParser.read(element.value);
+
+    //var bounds;
+
+
+
+    if(features)
+
+    {
+
+        if(features.constructor != Array)
+
+            features = [features];
+
+
+
+        vectors.addFeatures(features);
+
+
+
+        var plural = (features.length > 1) ? 's' : '';
+
+
+
+        alert(features.length + ' feature' + plural + ' added');
+
+
+
+        fromProjection = "EPSG:900913";
+
+        toProjection   = "EPSG:900913";
+
+
+
+        document.getElementById("epsgFrom").value = map.projection;
+
+        document.getElementById("epsgTo").value   = map.projection;
+
+
+
+    }
+
+    else
+
+        alert('Bad input ' + type);
+
+}
+
+
+
+/*
+
+###########################################################################
+
+
+
+format.write with transform
+
+
+
+###########################################################################
+
+*/
+
+function features2KML() //format.write
+
+{
+
+    fromProjection = document.getElementById('epsgFrom').value;
+
+    toProjection   = document.getElementById('epsgTo').value;
+
+
+
+    var vlyr = map.layers[map.aktLayer];
+
+    var msg = "";
+
+
+
+    if(typeof vlyr.isVector != 'undefined' && vlyr.isVector)
+
+    {
+
+        if(vlyr.features.length>0)
+
+        {
+
+            var type = document.getElementById("formatType").value;
+
+
+
+            var features = vlyr.features;
+
+            if(features.constructor != Array)
+
+                features = [features];
+
+
+
+            try{
+
+                Proj4js.readTransformed=false;
+
+                var theParser = formats[type];
+
+                theParser.internalProjection = new OpenLayers.Projection(fromProjection);
+
+                theParser.externalProjection = new OpenLayers.Projection(toProjection);
+
+                var derString = theParser.write(features, true);
+
+                msg = derString;
+
+                Proj4js.readTransformed=true;
+
+            }catch(e){
+
+                msg = "theParser.write(features, true)\r\n<br>" + e.message;
+
+            }
+
+
+
+        }
+
+        else
+
+            msg = vlyr.name + " enthält keine features";
+
+    }
+
+    else
+
+        msg = vlyr.name + " ist kein Vektorlayer";
+
+
+
+    document.getElementById("epsgFrom").value = "EPSG:900913";
+
+    document.getElementById("epsgTo").value   = "EPSG:900913";
+
+
+
+    fromProjection = "EPSG:900913";
+
+    toProjection   = "EPSG:900913";
+
+
+
+    if(type=='kml'||type=='gml')
+
+        document.getElementById("taClpBrd").value = "<" + "?xml version='1.0' encoding='ISO-8859-1'?" + ">\r\n" + msg;
+
+    else
+
+        document.getElementById("taClpBrd").value = msg;
+
+
+
+}
+
+
+
+function populateLayer(aktLyr)
+
+{
+
+    //populate select for layers
+
+    var theHTML = '<select id="selAktLyr" onchange="setAktLyr();">';
+
+    for(var i=4;i<map.layers.length;i++)
+
+    {
+
+        theHTML += '<option value=' + i + '>' + map.layers[i].name;
+
+    }
+
+    document.getElementById("spanselAktLyr").innerHTML = theHTML + '</select>';
+
+    if(!aktLyr)
+
+        map.aktLayer = 4;
+
+    else
+
+    {
+
+        map.aktLayer = aktLyr;
+
+    }
+
+    document.getElementById("selAktLyr").value=map.aktLayer;
+
+}
+
+
+
+function setAktLyr()
+
+{
+
+    map.aktLayer = document.getElementById("selAktLyr").value;
+
+}
+
+
+
+//output=layerProperties(opener.map.layers[3].styleMap.styles.default, 1);
+
+// + opener.map.layers[3].features[0].style;
+
+
+
+function randomColor()
+
+{
+
+    var red  =parseInt(128*Math.random()+127);
+
+    var green=parseInt(128*Math.random()+127);
+
+    var blue =parseInt(128*Math.random()+127);
+
+
+
+    return("#" + DecToHex(red) + DecToHex(green) + DecToHex(blue));
+
+}
+
+
+
+function DecToHex(dec)
+
+{
+
+    var hexStr = "0123456789ABCDEF";
+
+    var low = dec % 16;
+
+    var high = (dec - low)/16;
+
+    hex = "" + hexStr.charAt(high) + hexStr.charAt(low);
+
+    return hex;
+
+}
+
+
+
+/*
+
+###########################################################################
+
+
+
+addLabels
+
+addLabel
+
+toggleLabels
+
+delLabels
+
+
+
+###########################################################################
+
+*/
+
+var AutoSizeAnchored = OpenLayers.Class(OpenLayers.Popup.Anchored, {'autoSize': true});
+
+
+
+function addLabels(layer)
+
+{
+
+    var theFeatures = layer.features;
+
+
+
+    if(layer.visibility == false || layer.popupFlag==true || !theFeatures)
+
+    {
+
+        var Msg = "";
+
+        if(layer.popupFlag==true)
+
+            Msg += "Layer " + layer.name + " hat schon Labels.\r\n";
+
+        if(layer.visibility == false)
+
+            Msg += "Layer " + layer.name + " muss sichtbar sein.\r\n";
+
+        if(!theFeatures)
+
+            Msg += "Layer " + layer.name + " hat keine Features\r\n";
+
+
+
+        alert(Msg);
+
+        return false;
+
+    }
+
+
+
+    for(var i=0;i<theFeatures.length;i++)
+
+    {
+
+        var objBounds = theFeatures[i].geometry.getBounds();
+
+
+
+        var x = (objBounds.left+objBounds.right)/2;
+
+        var y = (objBounds.top+objBounds.bottom)/2;
+
+
+
+        //var x = theFeatures[i].geometry.x;
+
+        //var y = theFeatures[i].geometry.y;
+
+        var theAtt = theFeatures[i].attributes.name.replace(/^sundial, /i,"");
+
+
+
+        if(!theAtt)
+
+            theAtt = "Feature " + i;
+
+
+
+        var ll = new OpenLayers.LonLat(x,y);
+
+        var objid = OpenLayers.Util.createUniqueID("LABEL_" + i + "_");
+
+        popupClass = AutoSizeAnchored;
+
+        popupContentHTML = '<span id="' + objid + '" class="mypopuphtml" >' + theAtt + '</span>';
+
+        addLabel(ll, layer, map, popupClass, popupContentHTML);
+
+        layer.popupFlag = true;
+
+    }
+
+}
+
+//###########################################################################
+
+
+
+function addLabel(ll, layer, map, popupClass, popupContentHTML, closeBox, overflow) {
+
+
+
+    var feature = new OpenLayers.Feature(layer, ll);
+
+    feature.closeBox = closeBox;
+
+    feature.popupClass = popupClass;
+
+    feature.data.popupContentHTML = popupContentHTML;
+
+    feature.data.overflow = (overflow) ? "auto" : "hidden";
+
+
+
+    feature.popup = feature.createPopup(feature.closeBox);
+
+    feature.popup.name = "LABEL_" + layer.id;
+
+    map.addPopup(feature.popup);
+
+    feature.popup.show();
+
+    //opener.document.getElementById(feature.popup.id).onmousedown="dragStart(event, this.div)";
+
+    document.getElementById(feature.popup.id).style.display="block";
+
+    document.getElementById(feature.popup.id).style.cursor="pointer";
+
+    document.getElementById(feature.popup.id).style.backgroundColor="transparent";
+
+    document.getElementById(feature.popup.id).name=feature.popup.name;
+
+
+
+    feature.popup.events.register("mousedown", feature.popup, function (e) {
+
+        dragStart(e, this.id);
+
+    });
+
+
+
+}
+
+//###########################################################################
+
+
+
+function delLabels(layer)
+
+{
+
+    var theFeatures = layer.features;
+
+
+
+    if(layer.visibility == false || layer.popupFlag==false || !theFeatures)
+
+    {
+
+        var Msg = "";
+
+        if(layer.popupFlag==false)
+
+            Msg += "Layer " + layer.name + " hat keine Labels.\r\n";
+
+        if(layer.visibility == false)
+
+            Msg += "Layer " + layer.name + " muss sichtbar sein.\r\n";
+
+        if(!theFeatures)
+
+            Msg += "Layer " + layer.name + " hat keine Features\r\n";
+
+
+
+        alert(Msg);
+
+        return false;
+
+    }
+
+
+
+    var Anz=1;
+
+    var obj = map.popups;
+
+
+
+    var arrLabels=[];
+
+    for(var i=0;i<obj.length;i++)
+
+        if(obj[i].name=="LABEL_" + layer.id)
+
+            arrLabels[arrLabels.length]=obj[i];
+
+
+
+    for(var i=0;i<arrLabels.length;i++)
+
+        eval(arrLabels[i]).destroy();
+
+
+
+    layer.popupFlag = false;
+
+}
+
+//###########################################################################
+
+
+
+function toggleLabels(flag,layer)
+
+{
+
+    var Anz=1;
+
+    var obj = map.popups;
+
+
+
+    var arrLabels=[];
+
+    for(var i=0;i<obj.length;i++)
+
+        if(obj[i].name=="LABEL_" + layer.id && flag==1)                     //"SHOW"
+
+            document.getElementById(obj[i].id).style.display = "block";
+
+        else if(obj[i].name=="LABEL_" + layer.id && flag==-1)                //"HIDE"
+
+            document.getElementById(obj[i].id).style.display = "none";
+
+        else if(obj[i].name=="LABEL_" + layer.id && flag==0)                //"TOGGLE"
+
+            document.getElementById(obj[i].id).style.display = document.getElementById(obj[i].id).style.display == "block" ? "none" : "block";
+
+
+
+}
+
+//###########################################################################
+
+
+
+function delAktLayer(layer)
+
+{
+
+    var ret = confirm("Layer " + layer.name + " löschen?");
+
+    if(ret)
+
+    {
+
+        var obj = map.popups;
+
+
+
+        var arrLabels=[];
+
+        for(var i=0;i<obj.length;i++)
+
+            if(obj[i].name=="LABEL_" + layer.id)
+
+                arrLabels[arrLabels.length]=obj[i];
+
+
+
+        for(var i=0;i<arrLabels.length;i++)
+
+            eval(arrLabels[i]).destroy();
+
+
+
+        map.removeLayer(layer);
+
+        map.aktLayer = 0;
+
+        populateLayer();
+
+    }
+
+}
+
+
+
+</script>
+
 </head>
-<body>
-  <h1>Buscar Rutas</h1>
-<p>
-<form action="/rutas/buscador" method="post">
-<input name="inicio" />
-<input type="submit" />
-</form>
-  </p>
+
+<body onload="init();">
+
+
+
+  <script>
+
+
+
+      var LeftText  = "homepage:gis.ibbeck.de";
+
+      var RightText = "examples:gis.ibbeck.de";
+
+
+
+      var LeftLink  = "http://gis.ibbeck.de/ginfo/";
+
+      var RightLink = "http://gis.ibbeck.de/ginfo/apps/OLExamples/Index/index.html";
+
+
+
+      var MiddleText = "&#160;&#160;-&#160;&#160;OpenLayers Examples by gis.ibbeck.de&#160;&#160;-&#160;&#160;";
+
+
+
+      document.write('<center><div id="fusszeile" onmouseover="this.style.backgroundColor=\'#CCCCCC\';this.style.opacity=1;" onmouseout="this.style.backgroundColor=\'#CCCCCC\';this.style.opacity=0.25;" style="z-index:9999;cursor:pointer;position:absolute;top:0px;left:0px;width:100%;padding-left:0px;background-color:#CCCCCC;opacity:0.25;font-size: 10px; font-weight: bold;"><a href="' + LeftLink + '">' + LeftText + '<\/a><span style="cursor:default">' + MiddleText + '<\/span><a style="color:blue;cursor:pointer;" href="' + RightLink + '">' + RightText + '<\/a><\/div><\/center>');
+
+
+
+  </script>
+
+
+
+<table>
+
+<tr><td><div id="headline" style="font-size:14pt;padding:5px"><span onclick="PopupWindow(280, 700, 850, 200, 'OLC_Debug.html', 'OLCDebug');" style="cursor:pointer">O</span>penlayers 2.6 (Example Transform and Labels)</div></td><td><span style="font-size:14pt;padding:5px">Clipboard</span><span style="font-size:14pt;padding:5px;cursor:pointer;text-decoration:underline" onclick="document.getElementById('taClpBrd').value='';">Clear</span></td></tr>
+
+<tr><td><div id="map"></div></td><td><textarea id="taClpBrd" style="width:350px;height:400px"></textarea></td></tr>
+
+<tr><td>Aktueller Layer:
+
+<span id="spanselAktLyr"></span>
+
+<span id="epsg" style="border:1px solid black;padding:2px;text-align:left;font-size:10px;color:black;cursor:default;"></span>&#160;
+
+<span id="rota" style="border:1px solid black;padding:2px;text-align:left;font-size:10px;color:black;cursor:default;"></span></td>
+
+<td>
+
+<select class="selFormat" name="epsgFrom" id="epsgFrom">
+
+    <option value="EPSG:900913">EPSG:900913</option>
+
+    <option value="EPSG:4326">EPSG:4326</option>
+
+    <option value="EPSG:31466">EPSG:31466</option>
+
+</select>
+
+<select class="selFormat" name="epsgTo" id="epsgTo">
+
+    <option value="EPSG:900913">EPSG:900913</option>
+
+    <option value="EPSG:4326">EPSG:4326</option>
+
+    <option value="EPSG:31466">EPSG:31466</option>
+
+</select>
+
+<select class="selFormat" name="formatType" id="formatType">
+
+    <option value="geojson">GeoJSON</option>
+
+    <option value="kml" selected>KML</option>
+
+    <option value="georss">GeoRSS</option>
+
+    <option value="gml">GML</option>
+
+    <option value="wkt">Well-Known Text (WKT)</option>
+
+</select>
+
+
+
+</td></tr>
+
+<tr>
+
+<td>
+
+<input type="button" value="Add Labels"    onclick="addLabels(map.layers[map.aktLayer]);">&#160;
+
+<input type="button" value="Toggle Labels" onclick="toggleLabels(0,map.layers[map.aktLayer]);">&#160;
+
+<input type="button" value="Delete Labels" onclick="delLabels(map.layers[map.aktLayer]);">
+
+<input type="button" value="Delete Layer"  onclick="delAktLayer(map.layers[map.aktLayer]);">
+
+</td>
+
+<td><input type="button" value="Read Format (Import)" onclick="deserialize();">&#160;<input type="button" value="Write Format (Export)" onclick="features2KML();"></td></tr>
+
+<tr><td><a href="http://gis.ibbeck.de/ginfo/apps/OLExamples/OL26/examples/labels_radiobtn.html">example with modified LayerSwitcher to set active layer</a></td><td></td></tr>
+
+<tr><td></td><td></td></tr>
+
+</table>
+
+
+
+
+
 </body>
+
 </html>
+
