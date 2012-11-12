@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     url(r'^api/sitios/cerca/$', 'api.views.sitios_cerca', name='api_sitios_cerca'),
     url(r'^api/rutas/calcular/$', 'api.views.calcular_ruta',
         name='api_rutas_calcular'),
+    url(r'^api/rutas/calcular_por_dir/$', 'api.views.calcular_ruta_por_dir',
+        name='api_rutas_calcular_por_dir'),
     url(r'^api/rutas/crear/$', 'api.views.crear_ruta', name='api_rutas_crear'),
 
     url(r'^admin/', include(admin.site.urls)),

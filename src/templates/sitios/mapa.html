@@ -21,9 +21,10 @@
           </div>
 
           <div data-role="footer" data-theme="b">
-            <a href="#searchpage" data-icon="search" data-role="button">Search</a>
-            <a href="#" id="locate" data-icon="locate" data-role="button">Locate</a>
-            <a href="#layerspage" data-icon="layers" data-role="button">Layers</a>
+            <a href="#searchpage" data-icon="search" data-role="button">Buscar</a>
+            <a href="#" id="locate" data-icon="locate" data-role="button">Cerca</a>
+            <a href="#layerspage" data-icon="star" data-role="button">Sitios</a>
+            <a href="#rutaspage" data-icon="forward" data-role="button">Rutas</a>
           </div>
           <div id="navigation" data-role="controlgroup" data-type="vertical">
             <a href="#" data-role="button" data-icon="plus" id="plus"
@@ -34,7 +35,7 @@
         </div>
 
         <div data-role="page" id="searchpage">
-          <div data-role="header">
+          <div data-role="header" data-theme="b">
             <h1>Search</h1>
           </div>
           <div data-role="fieldcontain">
@@ -46,7 +47,7 @@
         </div>
 
         <div data-role="page" id="layerspage">
-          <div data-role="header">
+          <div data-role="header" data-theme="b">
             <h1>Layers</h1>
           </div>
           <div data-role="content">
@@ -54,10 +55,28 @@
             </ul>
           </div>
         </div>
+	
+	<div data-role="page" id="rutaspage">
+          <div data-role="header" data-theme="b">
+            <h1>Rutas</h1>
+          </div>
+          <div data-role="content">
+          <div data-role="fieldcontain" class="ui-hide-label">
+            <label for="direccion_origen">:</label>
+            <input type="text" name="direccion_origen" id="direccion_origen" value="" placeholder="Origen"/>
+          </div>
+          <div data-role="fieldcontain" class="ui-hide-label">
+            <label for="direccion_destino">:</label>
+            <input type="text" name="direccion_destino" id="direccion_destino" value="" placeholder="Destino"/>
+          <button id="calcular_ruta_dir" data-theme="b">Calcular</button>
+        </form>
+
+          </div>
+        </div>
 
         <div id="popup" data-role="dialog">
             <div data-position="inline" data-theme="b" data-role="header">
-                <h1>Details</h1>
+                <h1>Detalles</h1>
             </div>
             <div data-theme="b" data-role="content">
                 <ul id="details-list" data-role="listview">
