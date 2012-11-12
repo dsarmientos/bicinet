@@ -2,10 +2,11 @@ import json
 import urllib
 import urllib2
 
+
 from django.db import connection, transaction
 
 
-def findNearestSites(latitud, longitud, tipoSitio, radio):
+def findNearestSites(latitud, longitud, tipo, radio):
     latitudini = float(latitud)
     longitudini = float(longitud)
     radioN = float(radio)
@@ -14,7 +15,8 @@ def findNearestSites(latitud, longitud, tipoSitio, radio):
     stringSQL = stringSQL + " " + "FROM points"
     stringSQL = stringSQL + " " + "WHERE ST_Within(the_geom, ST_buffer(ST_GeomFromText('POINT(" + str(longitudini)
     stringSQL = stringSQL + " " + " " + str(latitudini) + ")', 4326) , " + str(radioN) + " , 'quad_segs=4'))"
-    stringSQL = stringSQL + " " + " AND type = '" + tipoSitio + "'"
+    stringSQL += " " + " AND (type = '" + tipo + "' OR type ilike '%%bicycle%%' "
+    stringSQL += "OR type='fuel')"
 
     cursor = connection.cursor()
     cursor.execute(stringSQL)
@@ -100,14 +102,12 @@ def routingExec(longIni, latIni, longFin, latFin):
     cursor = connection.cursor()
     cursor.execute(stringSQL, parametrosSQL)
     # Defino el resultado como diccionario
-    resultado = {}
-    resultado.update({'type': 'FeatureCollection'})
+    resultado = {'type': 'FeatureCollection'}
     features = []
     segmentos = 0
 
     for fila in cursor.fetchall():
-        feature = {}
-        feature.update({'type': 'Feature'})
+        feature = {'type': 'Feature'}
         feature.update({'geometry': json.loads(fila[1]) })
 
         # construye el arreglo que especifica la proyeccion en la que vienen los datos
@@ -128,11 +128,8 @@ def routingExec(longIni, latIni, longFin, latFin):
         # El elemento features es a la vez un diccionario
         resultado.update({'features': features } )
         segmentos = segmentos + 1
-
-    if segmentos == 0:
-        resultado.update({'Encontrado': 'False'})
-    else:
-        resultado.update({'Encontrado': 'True'})
+    if not segmentos:
+        resultado = {'error': 'No se pudo encontrar una ruta'}
 
     return resultado
 
@@ -144,13 +141,10 @@ def geocode(address):
     request = urllib2.urlopen(url)
     response = request.read()
     request.close()
-    resDiccionario = json.load(response)
+    resDiccionario = json.loads(response)
+    location = {'error': True}
     if resDiccionario["status"] == "OK":
-         vecResults = resDiccionario["results"]
-         vecResults2 = vecResults2[0]
-         geometria = vecResults2["geometry"]
-         location = geometria["location"]
-    else:
-         location = {}
-    return json.dumps(location)
- 
+        vecResults = resDiccionario["results"]
+        geometria = vecResults[0]["geometry"]
+        location = geometria["location"]
+    return location

@@ -9,7 +9,7 @@ var init = function (onSelectFeatureFunction) {
 
     var sitiosLayer = new OpenLayers.Layer.Vector("Sitios", {
        	    styleMap: new OpenLayers.StyleMap({
-            externalGraphic: "/static/img/mobile-marker.png",
+            externalGraphic: "/static/img/parking-marker.png",
             graphicOpacity: 1.0,
             graphicWidth: 16,
             graphicHeight: 26,
@@ -111,11 +111,31 @@ var init = function (onSelectFeatureFunction) {
       map.addControl(selectControl);
       map.zoomToExtent(sitiosLayer.getDataExtent());
    }
-   
     
+   
+
    function addNearSites(sitiosLayer, sitios) {
       var features = readFeatures(sitios);
       sitiosLayer.addFeatures(features);
    }
 
 };
+
+var addRoute = function(route) {
+      var reader = new OpenLayers.Format.GeoJSON();
+      var features = reader.read(route);
+      var routeLayer = new OpenLayers.Layer.Vector("Ruta", {
+       	    styleMap: new OpenLayers.StyleMap({
+	    strokeColor: "#663300",
+	    strokeOpacity: 1,
+	    strokeWidth: 3,
+	    fillColor: "#663300",
+	    fillOpacity: 0.5,
+          })
+      });
+      routeLayer.addFeatures(features);
+      map.addLayer(routeLayer);
+      map.zoomToExtent(routeLayer.getDataExtent());
+};
+    
+    

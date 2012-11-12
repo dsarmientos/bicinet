@@ -46,8 +46,21 @@ $("#locate").live('click',function(){
     }
 });
 
-$('#calcular_ruta_dir').live('click', function() {
-    alert('calcula');
+$('#rutaspage').live('pageshow',function(event, ui){
+  $('#calcular_ruta_dir').bind('click', function() {
+    var origen = $('#direccion_origen').val()+', bogota';
+    var destino = $('#direccion_destino').val()+', bogota';
+    $.mobile.showPageLoadingMsg();
+    $.post('/api/rutas/calcular_por_dir/',
+	    {'origen': origen, 'destino': destino},
+	    function(data) {
+	      console.log(data);
+	      addRoute(data); 
+    $.mobile.hidePageLoadingMsg();
+	      $.mobile.changePage('#mappage');}
+    );
+  });
+  $('#rutaspage').die('pageshow', arguments.callee);
 });
 
 //fix the content height AFTER jQuery Mobile has rendered the map page
