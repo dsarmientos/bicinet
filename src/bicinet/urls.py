@@ -9,6 +9,11 @@ urlpatterns = patterns('',
                 'template': 'index.html'
                     }, name='home'),
 
+    url('^geotest/$', direct_to_template, {
+                'template': 'geo.html'
+                    }, name='geo'),
+
+    url(r'^users/login/$', 'users.views.login', name='login'),
     url(r'^rutas/$', 'rutas.views.home', name='home_rutas'),
 
     url(r'^sitios/buscador/$', 'sitios.views.buscador', name='sitios_buscador'),

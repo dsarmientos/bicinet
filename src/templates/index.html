@@ -12,27 +12,41 @@
   <div data-role="page" id="home">
     <div data-role="header" data-theme="b" data-position="fixed">
       <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
-      <h1>Share QR</h1>
+      <h1>Bicinet</h1>
     </div>
     <div data-role="content">
-      <p>Hello world!</p>
+      <img src="/static/img/bicinet-logo.png" />
+      <p>
+        <form action="{% url login %}" method="POST">
+	  <div data-role="fieldcontain" class="ui-hide-label">
+	    <label for="usuario">Usuario:</label>
+	    <input type="text" name="username" id="usuario" value="" placeholder="Usuario"/>
+	  </div>
+	  <div data-role="fieldcontain" class="ui-hide-label">
+	    <label for="clave">Contraseña:</label>
+	    <input type="text" name="password" id="clave" value="" placeholder="Contraseña"/>
+	  </div>
+	  <button type="submit" name="submit" value="submit" data-theme="b">Enviar</button>
+	</form>
+
+      <p>
     </div>
     <div data-role="footer" class="ui-bar" data-theme="b" data-position="fixed" data-id="footer">
-      <a href="#about" data-icon="info">About</a>
+      <a href="#about" data-icon="info">Acerca de</a>
     </div>
   </div>
 
   <div data-role="page" id="about">
     <div data-role="header" data-theme="b" data-position="fixed">
-      <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
-      <h1>About</h1>
-      <a href="#home" data-icon="arrow-l" data-rel="back">Back</a> 
+      <a href="#home" data-icon="home" data-iconpos="notext">Inicio</a>
+      <h1>Acerca de</h1>
+      <a href="#home" data-icon="arrow-l" data-rel="back">Volver</a> 
     </div>
     <div data-role="content">
-      <p>Share your favorite URLs with other mobile phone users through QR codes.</p>
+      <p>Universidad de los Andes. Location Based Services - 2012</p>
     </div>
     <div data-role="footer" class="ui-bar" data-theme="b" data-position="fixed" data-id="footer">
-      <a href="#about" data-icon="info">About</a>
+      <a href="#about" data-icon="info">Acerca de</a>
     </div>
   </div>
 
