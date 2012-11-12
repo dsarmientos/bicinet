@@ -144,4 +144,13 @@ def geocode(address):
     request = urllib2.urlopen(url)
     response = request.read()
     request.close()
-    return json.dumps(response)
+    resDiccionario = json.load(response)
+    if resDiccionario["status"] == "OK":
+         vecResults = resDiccionario["results"]
+         vecResults2 = vecResults2[0]
+         geometria = vecResults2["geometry"]
+         location = geometria["location"]
+    else:
+         location = {}
+    return json.dumps(location)
+ 
