@@ -46,6 +46,10 @@ $("#locate").live('click',function(){
     }
 });
 
+$('#calcular_ruta_dir').live('click', function() {
+    alert('calcula');
+});
+
 //fix the content height AFTER jQuery Mobile has rendered the map page
 $('#mappage').live('pageshow',function (){
     fixContentHeight();

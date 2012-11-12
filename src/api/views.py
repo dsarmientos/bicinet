@@ -38,3 +38,14 @@ def crear_ruta(request):
     response['Access-Control-Allow-Headers'] = 'X-Requested-With'
     return response
 
+def calcular_ruta_por_dir(request):
+    origen = request.POST['direccion_origen']
+    destino = request.POST['direccion_destino']
+    ruta = json.dumps(
+        geo.routingExec(longitud_i, latitud_i, longitud_f, latitud_f))
+    response = HttpResponse(ruta, content_type="application/json")
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'X-Requested-With'
+    return response
+
+
