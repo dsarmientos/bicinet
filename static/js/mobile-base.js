@@ -50,6 +50,7 @@ var init = function (onSelectFeatureFunction) {
         layers: [
             new OpenLayers.Layer.Google("Google Streets", {numZoomLevels: 20}),
             vector,
+            sitiosLayer,
         ],
         center: new OpenLayers.LonLat(74.065304, 4.602718),
         zoom: 10
