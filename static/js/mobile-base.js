@@ -1,0 +1,119 @@
+// initialize map when page ready
+var map;
+var gg = new OpenLayers.Projection("EPSG:4326");
+var sm = new OpenLayers.Projection("EPSG:900913");
+
+var init = function (onSelectFeatureFunction) {
+
+    var vector = new OpenLayers.Layer.Vector("Vector Layer", {});
+
+    var sprintersLayer = new OpenLayers.Layer.Vector("Sprinters", {
+        styleMap: new OpenLayers.StyleMap({
+            externalGraphic: "/static/img/mobile-marker.png",
+            graphicOpacity: 1.0,
+            graphicWidth: 16,
+            graphicHeight: 26,
+            graphicYOffset: -26
+        })
+    });
+
+     $.getJSON('/api/sitios/cerca/',
+    	       {latitud:4.6027189,longitud:-74.065304},
+       	       function(data, textStatus, jqXHR) {     
+		   addSites(data);
+               }
+    );
+
+    var selectControl = new OpenLayers.Control.SelectFeature(sprintersLayer, {
+        autoActivate:true,
+        onSelect: onSelectFeatureFunction});
+
+    var geolocate = new OpenLayers.Control.Geolocate({
+        id: 'locate-control',
+        geolocationOptions: {
+            enableHighAccuracy: false,
+            maximumAge: 0,
+            timeout: 7000
+        }
+    });
+    // create map
+    map = new OpenLayers.Map({
+        div: "map",
+        theme: null,
+        projection: sm,
+        numZoomLevels: 20,
+        controls: [
+            new OpenLayers.Control.Attribution(),
+            new OpenLayers.Control.TouchNavigation({
+                dragPanOptions: {
+                    enableKinetic: true
+                }
+            }),
+            geolocate,
+            selectControl
+        ],
+        layers: [
+            new OpenLayers.Layer.Google("Google Streets", {numZoomLevels: 20}),
+            vector,
+            //sprintersLayer
+        ],
+        center: new OpenLayers.LonLat(0, 0),
+        zoom: 1
+    });
+
+    var style = {
+        fillOpacity: 0.1,
+        fillColor: '#000',
+        strokeColor: '#f00',
+        strokeOpacity: 0.6
+    };
+    geolocate.events.register("locationupdated", this, function(e) {
+        vector.removeAllFeatures();
+        vector.addFeatures([
+            new OpenLayers.Feature.Vector(
+                e.point,
+                {},
+                {
+                    graphicName: 'cross',
+                    strokeColor: '#f00',
+                    strokeWidth: 2,
+                    fillOpacity: 0,
+                    pointRadius: 10
+                }
+            ),
+            new OpenLayers.Feature.Vector(
+                OpenLayers.Geometry.Polygon.createRegularPolygon(
+                    new OpenLayers.Geometry.Point(e.point.x, e.point.y),
+                    e.position.coords.accuracy / 2,
+                    50,
+                    0
+                ),
+                {},
+                style
+            )
+        ]);
+        map.zoomToExtent(vector.getDataExtent());
+    });
+
+    function readFeatures(features) {
+        var reader = new OpenLayers.Format.GeoJSON();
+        return reader.read(features);
+    }
+    
+    function addSites(sitios) {
+       var sitiosLayer = new OpenLayers.Layer.Vector("Sprinters", {
+       	    styleMap: new OpenLayers.StyleMap({
+            externalGraphic: "/static/img/mobile-marker.png",
+            graphicOpacity: 1.0,
+            graphicWidth: 16,
+            graphicHeight: 26,
+            graphicYOffset: -26
+          })
+      });
+      var features = readFeatures(sitios);
+      sitiosLayer.addFeatures(features);
+      map.addLayer(sitiosLayer);
+      map.zoomToExtent(sitiosLayer.getDataExtent());
+   }
+
+};

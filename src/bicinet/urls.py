@@ -16,7 +16,9 @@ urlpatterns = patterns('',
     url(r'^users/login/$', 'users.views.login', name='login'),
     url(r'^rutas/$', 'rutas.views.home', name='home_rutas'),
 
-    url(r'^sitios/buscador/$', 'sitios.views.buscador', name='sitios_buscador'),
+    url('^sitios/mapa/$', direct_to_template, {
+                'template': 'sitios/mapa.html'
+                    }, name='sitios_mapa'),
 
     url(r'^api/sitios/cerca/$', 'api.views.sitios_cerca', name='api_sitios_cerca'),
 
