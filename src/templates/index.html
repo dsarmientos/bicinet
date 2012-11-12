@@ -3,23 +3,38 @@
 <head>
   <title>Bicinet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">		
-  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
-  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <link rel="stylesheet" href="/static/css/lib/jquery-mobile/jquery.mobile-1.2.0.min.css" />
+  <script src="/static/js/lib/jquery-1.8.2.min.js"></script>
   <script src="/static/js/lib/jquery.mobile-1.2.0.min.js"></script>
 </head>
-
 <body>
+
   <div data-role="page" id="home">
-    <div data-role="header">
-      <h1>BiciNet</h1>
+    <div data-role="header" data-theme="b" data-position="fixed">
+      <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
+      <h1>Share QR</h1>
     </div>
     <div data-role="content">
-      <p>Bienvenido</p>
+      <p>Hello world!</p>
     </div>
-    <div data-role="footer">
-      <h4>Footer</h4>
+    <div data-role="footer" class="ui-bar" data-theme="b" data-position="fixed" data-id="footer">
+      <a href="#about" data-icon="info">About</a>
     </div>
   </div>
+
+  <div data-role="page" id="about">
+    <div data-role="header" data-theme="b" data-position="fixed">
+      <a href="#home" data-icon="home" data-iconpos="notext">Home</a>
+      <h1>About</h1>
+      <a href="#home" data-icon="arrow-l" data-rel="back">Back</a> 
+    </div>
+    <div data-role="content">
+      <p>Share your favorite URLs with other mobile phone users through QR codes.</p>
+    </div>
+    <div data-role="footer" class="ui-bar" data-theme="b" data-position="fixed" data-id="footer">
+      <a href="#about" data-icon="info">About</a>
+    </div>
+  </div>
+
 </body>
 </html>
-

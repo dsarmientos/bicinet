@@ -47,7 +47,7 @@ def routingExec(longIni, latIni, longFin, latFin):
                      SELECT osm_id AS id,
                         source::int4,
                         target::int4,
-                        cost
+                        cost_seg as cost
                      FROM osm_2po_4pgr',
                      %s, %s, false, false))
             as rt, roads rd
