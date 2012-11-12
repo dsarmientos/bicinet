@@ -1,4 +1,7 @@
 import json
+import urllib
+import urllib2
+
 from django.db import connection, transaction
 
 
@@ -132,3 +135,13 @@ def routingExec(longIni, latIni, longFin, latFin):
         resultado.update({'Encontrado': 'True'})
 
     return resultado
+
+
+def geocode(address):
+    address = urllib.quote_plus(address)
+    url = ("http://maps.googleapis.com/maps/api/geocode/json?"
+          "address=%s&sensor=true&components=country:CO") % (address,)
+    request = urllib2.urlopen(url)
+    response = request.read()
+    request.close()
+    return json.dumps(response)
