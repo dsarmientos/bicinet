@@ -82,16 +82,16 @@ def routingExec(longIni, latIni, longFin, latFin):
     stringSQL =  """
         SELECT rd.osm_id, ST_AsGeoJSON(ST_Transform(rd.the_geom,900913)) as geojson, rt.cost as cost, rd.name
         FROM osm_2po_4pgr t1,
-            (SELECT vertex_id, cost
+            (SELECT vertex_id,edge_id,  cost
              FROM shortest_path('
-                     SELECT osm_id AS id,
+                     SELECT id AS id,
                         source::int4,
                         target::int4,
                         cost_seg as cost
                      FROM osm_2po_4pgr',
                      %s, %s, false, false))
             as rt, roads rd
-        WHERE rt.vertex_id = t1.source
+        WHERE rt.edge_id = t1.id
             AND rd.osm_id = t1.osm_id"""
     parametrosSQL = (arcoIni['origen'], arcoFin['destino'])
     cursor = connection.cursor()
