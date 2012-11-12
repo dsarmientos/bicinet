@@ -7,26 +7,22 @@ var init = function (onSelectFeatureFunction) {
 
     var vector = new OpenLayers.Layer.Vector("Vector Layer", {});
 
-    var sprintersLayer = new OpenLayers.Layer.Vector("Sprinters", {
-        styleMap: new OpenLayers.StyleMap({
+    var sitiosLayer = new OpenLayers.Layer.Vector("Sitios", {
+       	    styleMap: new OpenLayers.StyleMap({
             externalGraphic: "/static/img/mobile-marker.png",
             graphicOpacity: 1.0,
             graphicWidth: 16,
             graphicHeight: 26,
             graphicYOffset: -26
-        })
-    });
+          })
+      });
 
      $.getJSON('/api/sitios/cerca/',
     	       {latitud:4.6027189,longitud:-74.065304},
        	       function(data, textStatus, jqXHR) {     
-		   addSites(data);
+		   addSites(sitiosLayer, data, onSelectFeatureFunction);
                }
     );
-
-    var selectControl = new OpenLayers.Control.SelectFeature(sprintersLayer, {
-        autoActivate:true,
-        onSelect: onSelectFeatureFunction});
 
     var geolocate = new OpenLayers.Control.Geolocate({
         id: 'locate-control',
@@ -50,15 +46,13 @@ var init = function (onSelectFeatureFunction) {
                 }
             }),
             geolocate,
-            selectControl
         ],
         layers: [
             new OpenLayers.Layer.Google("Google Streets", {numZoomLevels: 20}),
             vector,
-            //sprintersLayer
         ],
-        center: new OpenLayers.LonLat(0, 0),
-        zoom: 1
+        center: new OpenLayers.LonLat(74.065304, 4.602718),
+        zoom: 10
     });
 
     var style = {
@@ -93,6 +87,12 @@ var init = function (onSelectFeatureFunction) {
             )
         ]);
         map.zoomToExtent(vector.getDataExtent());
+    	var param = {latitud:e.position.coords.latitude,longitud:e.position.coords.longitude};
+        $.getJSON('/api/sitios/cerca/', param,
+       	       function(data, textStatus, jqXHR) {     
+		   addNearSites(sitiosLayer, data);
+               }
+        );
     });
 
     function readFeatures(features) {
@@ -100,20 +100,21 @@ var init = function (onSelectFeatureFunction) {
         return reader.read(features);
     }
     
-    function addSites(sitios) {
-       var sitiosLayer = new OpenLayers.Layer.Vector("Sprinters", {
-       	    styleMap: new OpenLayers.StyleMap({
-            externalGraphic: "/static/img/mobile-marker.png",
-            graphicOpacity: 1.0,
-            graphicWidth: 16,
-            graphicHeight: 26,
-            graphicYOffset: -26
-          })
-      });
+    function addSites(sitiosLayer, sitios, onSelectFeatureFunction) {
       var features = readFeatures(sitios);
       sitiosLayer.addFeatures(features);
+      var selectControl = new OpenLayers.Control.SelectFeature(sitiosLayer, {
+        autoActivate:true,
+        onSelect: onSelectFeatureFunction});
       map.addLayer(sitiosLayer);
+      map.addControl(selectControl);
       map.zoomToExtent(sitiosLayer.getDataExtent());
+   }
+   
+    
+   function addNearSites(sitiosLayer, sitios) {
+      var features = readFeatures(sitios);
+      sitiosLayer.addFeatures(features);
    }
 
 };

@@ -17,3 +17,24 @@ def sitios_cerca(request):
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'X-Requested-With'
     return response
+
+
+def calcular_ruta(request):
+    latitud_i = request.GET['latitud_i']
+    longitud_i = request.GET['longitud_i']
+    latitud_f = request.GET['latitud_f']
+    longitud_f = request.GET['longitud_f']
+    ruta = json.dumps(
+        geo.routingExec(longitud_i, latitud_i, longitud_f, latitud_f))
+    response = HttpResponse(ruta, content_type="application/json")
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'X-Requested-With'
+    return response
+
+
+def crear_ruta(request):
+    response = HttpResponse('%s' % request.POST, content_type="application/json")
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'X-Requested-With'
+    return response
+

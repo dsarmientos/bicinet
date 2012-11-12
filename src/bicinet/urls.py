@@ -21,6 +21,9 @@ urlpatterns = patterns('',
                     }, name='sitios_mapa'),
 
     url(r'^api/sitios/cerca/$', 'api.views.sitios_cerca', name='api_sitios_cerca'),
+    url(r'^api/rutas/calcular/$', 'api.views.calcular_ruta',
+        name='api_rutas_calcular'),
+    url(r'^api/rutas/crear/$', 'api.views.crear_ruta', name='api_rutas_crear'),
 
     url(r'^admin/', include(admin.site.urls)),
 )
