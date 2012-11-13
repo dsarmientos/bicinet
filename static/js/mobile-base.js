@@ -24,6 +24,8 @@ var init = function (onSelectFeatureFunction) {
                }
     );
 
+    var openstreetmap = new OpenLayers.Layer.OSM();
+
     var geolocate = new OpenLayers.Control.Geolocate({
         id: 'locate-control',
         geolocationOptions: {
@@ -49,6 +51,7 @@ var init = function (onSelectFeatureFunction) {
         ],
         layers: [
             new OpenLayers.Layer.Google("Google Streets", {numZoomLevels: 20}),
+	    openstreetmap,
             vector,
             sitiosLayer,
         ],
@@ -118,6 +121,32 @@ var init = function (onSelectFeatureFunction) {
       var features = readFeatures(sitios);
       sitiosLayer.addFeatures(features);
    }
+   var markers = new OpenLayers.Layer.Markers( "Markers" );
+   markers.id = "Markers";
+   map.addLayer(markers);
+   var arrayMarkers = []
+
+   map.events.register("click", map, function(e) {
+             var position = this.events.getMousePosition(e);
+             var position = map.getLonLatFromPixel(e.xy);
+             var size = new OpenLayers.Size(21,25);
+             var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+             var icon = new OpenLayers.Icon('/static/img/bike-marker.png', size, offset);
+             var markerslayer = map.getLayer('Markers');
+             var marker = new OpenLayers.Marker(position,icon);
+             if (arrayMarkers.length < 2)
+             {
+                 arrayMarkers.push(marker);
+                 markerslayer.addMarker(marker);
+             }
+             else
+             {
+                 markertoRemove = arrayMarkers.shift();
+                 markerslayer.removeMarker(markertoRemove);
+                 arrayMarkers.push(marker);
+                 markerslayer.addMarker(marker);
+             }
+        });
 
 };
 

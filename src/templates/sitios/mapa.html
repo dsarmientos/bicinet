@@ -10,6 +10,7 @@
         <script src="/static/js/lib/jquery.mobile-1.2.0.min.js"></script>
 	<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
         <script src="/static/openlayers/OpenLayers.js"></script>
+        <script src="/static/js/lib/OpenStreetMap.js"></script>
         <script src="/static/js/mobile-base.js"></script>
         <script src="/static/js/mobile-jq.js"></script>
         <link rel="stylesheet" href="/static/css/map-page.css" />
@@ -23,13 +24,11 @@
           <div data-role="footer" data-theme="b">
             <a href="#searchpage" data-icon="search" data-role="button">Buscar</a>
             <a href="#" id="locate" data-icon="locate" data-role="button">Cerca</a>
-            <a href="#layerspage" data-icon="star" data-role="button">Sitios</a>
+            <a href="#sitiospage" data-icon="star" data-role="button">Sitios</a>
             <a href="#rutaspage" data-icon="forward" data-role="button">Rutas</a>
           </div>
           <div id="navigation" data-role="controlgroup" data-type="vertical">
-            <a href="#" data-role="button" data-icon="plus" id="plus"
-               data-iconpos="notext"></a>
-            <a href="#" data-role="button" data-icon="minus" id="minus"
+            <a href="#" data-role="button" data-icon="grid" id="plus"
                data-iconpos="notext"></a>
           </div>
         </div>
@@ -48,7 +47,7 @@
 
         <div data-role="page" id="layerspage">
           <div data-role="header" data-theme="b">
-            <h1>Layers</h1>
+            <h1>Capas</h1>
           </div>
           <div data-role="content">
             <ul data-role="listview" data-inset="true" data-theme="b" data-dividertheme="c" id="layerslist">
@@ -69,7 +68,41 @@
               <label for="direccion_destino">:</label>
               <input type="text" name="direccion_destino" id="direccion_destino" value="" placeholder="Destino"/>
             </div>
+	    <div data-role="fieldcontain" id="preferencias_ruta">
+            <fieldset data-role="controlgroup">
+            	<legend>Preferencia:</legend>
+                 	<input type="radio" name="preferencia-ruta" id="preferencia-seguridad" value="seguridad" checked="checked" />
+                 	<label for="preferencia-seguridad">Seguridad</label>
+                 	<input type="radio" name="preferencia-ruta" id="preferencia-distancia" value="distancia" />
+                 	<label for="preferencia-distancia">Distancia</label>
+            </fieldset>
+            </div>
+	    <div data-role="fieldcontain">
             <button id="calcular_ruta_dir" data-theme="b">Calcular</button>
+          </div>
+        </div>
+	<div data-role="page" id="sitiospage">
+          <div data-role="header" data-theme="b">
+            <h1>Sitios</h1>
+          </div>
+          <div data-role="content">
+	  <form action="{% url api_sitios_buscar_por_dir %}" method="POST">
+	    <div data-role="fieldcontain">
+              <label for="direccion_sitios">Sitios cerca de:</label>
+              <input type="text" name="direccion_sitios" id="direccion_sitios" value="" placeholder="Dirección"/>
+	    <div data-role="fieldcontain">
+	        <fieldset data-role="controlgroup">
+	    	   <legend>Mostrar:</legend>
+	    	   <input type="checkbox" name="parqueadero" id="parqueadero" class="custom" />
+	    	   <label for="parqueadero">Parqueadero</label>
+	    	   <input type="checkbox" name="supermercado" id="supermercado" class="custom" />
+	    	   <label for="supermercado">Super Mercado</label>
+	    	   <input type="checkbox" name="taller" id="taller" class="custom" />
+	    	   <label for="taller">Taller</label>
+	        </fieldset>
+	    </div>
+            <button id="buscar_sitios" type="submit" value="submit" data-theme="b">Buscar</button>
+    </form>
           </div>
         </div>
 

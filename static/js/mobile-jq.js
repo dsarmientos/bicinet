@@ -30,12 +30,9 @@ function fixContentHeight() {
 // one-time initialisation of button handlers 
 
 $("#plus").live('click', function(){
-    map.zoomIn();
+    $.mobile.changePage('#layerspage');
 });
 
-$("#minus").live('click', function(){
-    map.zoomOut();
-});
 
 $("#locate").live('click',function(){
     var control = map.getControlsBy("id", "locate-control")[0];
@@ -50,9 +47,11 @@ $('#rutaspage').live('pageshow',function(event, ui){
   $('#calcular_ruta_dir').bind('click', function() {
     var origen = $('#direccion_origen').val()+', bogota';
     var destino = $('#direccion_destino').val()+', bogota';
+    var preferencia = $('input[name=preferencia-ruta]:checked', '#preferencias_ruta').val();
+
     $.mobile.showPageLoadingMsg();
     $.post('/api/rutas/calcular_por_dir/',
-	    {'origen': origen, 'destino': destino},
+	    {'origen': origen, 'destino': destino, 'preferencia': preferencia},
 	    function(data) {
 	      console.log(data);
 	      addRoute(data); 
@@ -126,7 +125,7 @@ function initLayerList() {
     $('#layerspage').page();
     $('<li>', {
             "data-role": "list-divider",
-            text: "Base Layers"
+            text: "Mapa Base"
         })
         .appendTo('#layerslist');
     var baseLayers = map.getLayersBy("isBaseLayer", true);
@@ -136,10 +135,11 @@ function initLayerList() {
 
     $('<li>', {
             "data-role": "list-divider",
-            text: "Overlay Layers"
+            text: "Rutas y Sitios"
         })
         .appendTo('#layerslist');
-    var overlayLayers = map.getLayersBy("isBaseLayer", false);
+    var re = /Sitio.*/;
+    var overlayLayers = map.getLayersByName(re);
     $.each(overlayLayers, function() {
         addLayerToList(this);
     });

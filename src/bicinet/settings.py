@@ -108,6 +108,13 @@ ROOT_URLCONF = 'bicinet.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'bicinet.wsgi.application'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 TEMPLATE_DIRS = (
     os.path.join(PARENT_DIR, 'templates'),
 )
@@ -120,6 +127,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rutas',
+    'sitios',
+    'api',
+    'geo',
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',

@@ -38,9 +38,11 @@ def crear_ruta(request):
     response['Access-Control-Allow-Headers'] = 'X-Requested-With'
     return response
 
+
 def calcular_ruta_por_dir(request):
     origen = request.POST['origen']
     destino = request.POST['destino']
+    preferencia = request.POST.get('preferencia', 'seguridad')
     coord_origen = geo.geocode(origen)
     coord_destino = geo.geocode(destino)
     if not ('error' in coord_origen or 'error' in coord_destino):
@@ -48,7 +50,8 @@ def calcular_ruta_por_dir(request):
             geo.routingExec(coord_origen['lng'],
                             coord_origen['lat'],
                             coord_destino['lng'],
-                            coord_destino['lat'])
+                            coord_destino['lat'],
+                            preferencia)
         )
         response = HttpResponse(ruta, content_type="application/json")
     else:
@@ -57,6 +60,13 @@ def calcular_ruta_por_dir(request):
         elif 'error' in coord_destino:
             error = 'Direccion destino desconocida'
             response = HttpResponse({'error': error}, content_type="application/json")
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'X-Requested-With'
+    return response
+
+
+def sitios_por_dir(request):
+    response = HttpResponse('%s' % request.POST, content_type="application/json")
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'X-Requested-With'
     return response
