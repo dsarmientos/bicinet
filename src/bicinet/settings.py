@@ -5,7 +5,7 @@ PARENT_DIR = os.path.abspath(
 
 # Django settings for bicinet project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
