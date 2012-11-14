@@ -98,6 +98,7 @@ var init = function (onSelectFeatureFunction) {
                }
         );
     });
+    activateMarkers();
 
     function readFeatures(features) {
         var reader = new OpenLayers.Format.GeoJSON();
@@ -121,6 +122,28 @@ var init = function (onSelectFeatureFunction) {
       var features = readFeatures(sitios);
       sitiosLayer.addFeatures(features);
    }
+
+
+};
+
+var addRoute = function(route) {
+      var reader = new OpenLayers.Format.GeoJSON();
+      var features = reader.read(route);
+      var routeLayer = new OpenLayers.Layer.Vector("Ruta", {
+       	    styleMap: new OpenLayers.StyleMap({
+	    strokeColor: "#663300",
+	    strokeOpacity: 1,
+	    strokeWidth: 3,
+	    fillColor: "#663300",
+	    fillOpacity: 0.5,
+          })
+      });
+      routeLayer.addFeatures(features);
+      map.addLayer(routeLayer);
+      map.zoomToExtent(routeLayer.getDataExtent());
+};
+    
+var activateMarkers = function() {
    var markers = new OpenLayers.Layer.Markers( "Markers" );
    markers.id = "Markers";
    map.addLayer(markers);
@@ -147,24 +170,4 @@ var init = function (onSelectFeatureFunction) {
                  markerslayer.addMarker(marker);
              }
         });
-
-};
-
-var addRoute = function(route) {
-      var reader = new OpenLayers.Format.GeoJSON();
-      var features = reader.read(route);
-      var routeLayer = new OpenLayers.Layer.Vector("Ruta", {
-       	    styleMap: new OpenLayers.StyleMap({
-	    strokeColor: "#663300",
-	    strokeOpacity: 1,
-	    strokeWidth: 3,
-	    fillColor: "#663300",
-	    fillOpacity: 0.5,
-          })
-      });
-      routeLayer.addFeatures(features);
-      map.addLayer(routeLayer);
-      map.zoomToExtent(routeLayer.getDataExtent());
-};
-    
-    
+}
