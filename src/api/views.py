@@ -19,6 +19,21 @@ def sitios_cerca(request):
     return response
 
 
+def tipo_sitio_cerca(request):
+    latitud = request.POST['latitud']
+    longitud = request.POST['longitud']
+    tipo_sitio = request.POST['tipo_sitio']
+
+    print('aqui estoy')
+    radio = '0.01'
+    sitios = json.dumps(
+        geo.findNearestSites(latitud, longitud, tipo_sitio, radio))
+
+    response = HttpResponse(sitios, content_type="application/json")
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'X-Requested-With'
+    return response
+
 def calcular_ruta(request):
     latitud_i = request.GET['latitud_i']
     longitud_i = request.GET['longitud_i']

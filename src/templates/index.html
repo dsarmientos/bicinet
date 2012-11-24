@@ -19,7 +19,7 @@
     <div data-role="content">
       <img src="/static/img/bicinet-logo.png" />
       <p>
-        <form action="{% url login %}" method="POST">
+        
 	  <div data-role="fieldcontain" class="ui-hide-label">
 	    <label for="usuario">Usuario:</label>
 	    <input type="text" name="username" id="usuario" value="" placeholder="Usuario"/>
@@ -28,8 +28,7 @@
 	    <label for="clave">Contraseña:</label>
 	    <input type="text" name="password" id="clave" value="" placeholder="Contraseña"/>
 	  </div>
-	  <button type="submit" name="submit" value="submit" data-theme="b">Enviar</button>
-	</form>
+	  <a href="{% url sitios_mapa %}" data-role="button" data-ajax="false">Enviar</a>	
 
       <p>
     </div>

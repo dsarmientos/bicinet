@@ -97,9 +97,36 @@ function init(latitud, longitud) {
 
 function add_layers(map, featurecollection) {
         var geojson_format = new OpenLayers.Format.GeoJSON();
-        var vector_layer = new OpenLayers.Layer.Vector();
+
+        var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+        renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+
+        var vector_layer = new OpenLayers.Layer.Vector("Sitios Cercanos", {
+		                styleMap: new OpenLayers.StyleMap({'default':{
+		                    strokeColor: "#00FF00",
+		                    strokeOpacity: 1,
+		                    strokeWidth: 3,
+		                    fillColor: "#0000FF",
+		                    fillOpacity: 0.5,
+		                    pointRadius: 10,
+		                    label : "${nombre}",
+		                    pointerEvents: "visiblePainted",
+		                    fontColor: "red",
+		                    fontSize: "12px",
+		                    fontFamily: "Courier New, monospace",
+		                    fontWeight: "bold",
+		                    labelAlign: "cm",
+		                    labelOutlineColor: "white",
+		                    labelOutlineWidth: 3
+		                }}),
+		                renderers: renderer
+            });
+
+
+
         vector_layer.addFeatures(geojson_format.read(featurecollection));
         map.addLayer(vector_layer);
+
 
 }
 

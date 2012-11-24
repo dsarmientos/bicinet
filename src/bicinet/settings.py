@@ -5,7 +5,7 @@ PARENT_DIR = os.path.abspath(
 
 # Django settings for bicinet project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -72,6 +72,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    "/home/luis/bicinet/static",
     os.path.join(PARENT_DIR, '../static'),
 )
 

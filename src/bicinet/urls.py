@@ -29,16 +29,20 @@ urlpatterns = patterns('',
     url(r'^api/sitios/buscar_por_dir/$', 'api.views.sitios_por_dir',
         name='api_sitios_buscar_por_dir'),
 
+    url(r'^api/sitios/buscar_por_ubi/$', 'api.views.tipo_sitio_cerca',
+        name='api_tipo_sitio_buscar_por_ubi'),
+
+
     url(r'^admin/', include(admin.site.urls)),
 )
 
 
 from django.conf import settings
 ## debug stuff to serve static media
-if settings.DEBUG:
+if settings.DEBUG is True:
     urlpatterns += patterns('',
         (r'^static/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root':
-                '/home/daniel/bicinet/static/'}),
+                '/home/luis/bicinet/static/'}),
    )
 

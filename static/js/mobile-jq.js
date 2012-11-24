@@ -35,6 +35,7 @@ $("#plus").live('click', function(){
 
 
 $("#locate").live('click',function(){
+    
     var control = map.getControlsBy("id", "locate-control")[0];
     if (control.active) {
         control.getCurrentLocation();
@@ -61,6 +62,42 @@ $('#rutaspage').live('pageshow',function(event, ui){
   });
   $('#rutaspage').die('pageshow', arguments.callee);
 });
+
+
+$('#sitiospage').live('pageshow',function(event, ui){
+  $('#buscar_sitios').bind('click', function() {
+
+    var tipo_sitio = "parking";
+    var longitud = "4.685074068106999";
+    var latitud = "-74.05291557312012";
+    var preferencia = $("#parqueadero").attr("checked");
+    
+    if (( preferencia == "checked") || (preferencia == true)) {
+       tipo_sitio = "parking";
+    }
+    else {
+       var preferencia = $("#supermercado").attr("checked");       
+       if (( preferencia == "checked") || (preferencia == true)) {
+            tipo_sitio = "marketplace";       
+       }
+       else {
+            tipo_sitio = "hardware_store";       
+       }       
+    }
+
+    $.mobile.showPageLoadingMsg();
+    $.post('/api/sitios/buscar_por_ubi/',
+	    {'latitud': latitud, 'longitud': longitud, 'tipo_sitio': tipo_sitio},
+	    function(data) {
+	      console.log(data);
+	      addRoute(data); 
+    $.mobile.hidePageLoadingMsg();
+	      $.mobile.changePage('#mappage');}
+    );
+  });
+  $('#sitiospage').die('pageshow', arguments.callee);
+});
+
 
 //fix the content height AFTER jQuery Mobile has rendered the map page
 $('#mappage').live('pageshow',function (){

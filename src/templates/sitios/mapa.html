@@ -43,7 +43,7 @@
                    value="" placeholder="Search for places"
                    autocomplete="off"/>
           </div>
-          <ul data-role="listview" data-inset="true" id="search_results"></ul> 
+          <ul data-role="listview" data-inset="true" id="search_results"></ul>
         </div>
 
         <div data-role="page" id="layerspage">
@@ -55,7 +55,7 @@
             </ul>
           </div>
         </div>
-	
+
 	<div data-role="page" id="rutaspage">
           <div data-role="header" data-theme="b">
             <h1>Rutas</h1>
@@ -89,12 +89,11 @@
             <h1>Sitios</h1>
           </div>
           <div data-role="content">
-	  <form action="{% url api_sitios_buscar_por_dir %}" method="POST">
-	    <div data-role="fieldcontain">
+    	    <div data-role="fieldcontain">
               <label for="direccion_sitios">Sitios cerca de:</label>
               <input type="text" name="direccion_sitios" id="direccion_sitios" value="" placeholder="Dirección"/>
-      </div>
-	    <div data-role="fieldcontain">
+            </div>
+     	    <div data-role="fieldcontain" id="tipo_sitio">
 	        <fieldset data-role="controlgroup">
 	    	   <legend>Mostrar:</legend>
 	    	   <input type="checkbox" name="parqueadero" id="parqueadero" class="custom" />
@@ -104,9 +103,10 @@
 	    	   <input type="checkbox" name="taller" id="taller" class="custom" />
 	    	   <label for="taller">Taller</label>
 	        </fieldset>
-	    </div>
-            <button id="buscar_sitios" type="submit" value="submit" data-theme="b">Buscar</button>
-    </form>
+     	    </div>
+     	    <div data-role="fieldcontain">
+               <button id="buscar_sitios" data-theme="b">Buscar</button>
+            </div>
           </div>
         </div>
 
