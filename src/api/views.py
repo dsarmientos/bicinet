@@ -23,8 +23,6 @@ def tipo_sitio_cerca(request):
     latitud = request.POST['latitud']
     longitud = request.POST['longitud']
     tipo_sitio = request.POST['tipo_sitio']
-
-    print('aqui estoy')
     radio = '0.01'
     sitios = json.dumps(
         geo.findNearestSites(latitud, longitud, tipo_sitio, radio))
@@ -81,7 +79,19 @@ def calcular_ruta_por_dir(request):
 
 
 def sitios_por_dir(request):
-    response = HttpResponse('%s' % request.POST, content_type="application/json")
+    direccion = request.POST['direccion']
+    tipo_sitio = request.POST['tipo_sitio']
+    coord_direccion = geo.geocode(direccion)
+    radio = '0.01'
+    if not ('error' in coord_direccion ):
+
+        sitios = json.dumps(
+            geo.findNearestSites(coord_direccion['lat'], coord_direccion['lng'], tipo_sitio, radio))
+        response = HttpResponse(sitios, content_type="application/json")
+    else:
+        error = 'Direccion desconocida'
+        response = HttpResponse({'error': error}, content_type="application/json")
+    
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'X-Requested-With'
     return response

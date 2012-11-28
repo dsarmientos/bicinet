@@ -25,7 +25,8 @@
           <div data-role="footer" data-theme="b">
             <a href="#searchpage" data-icon="search" data-role="button">Buscar</a>
             <a href="#" id="locate" data-icon="locate" data-role="button">Cerca</a>
-            <a href="#sitiospage" data-icon="star" data-role="button">Sitios</a>
+            <a href="#sitiospage" data-icon="star" data-role="button">Sitios Mapa</a>
+            <a href="#sitiospage2" data-icon="star" data-role="button">Sitios Direccion</a>
             <a href="#rutaspage" data-icon="forward" data-role="button">Rutas</a>
           </div>
           <div id="navigation" data-role="controlgroup" data-type="vertical">
@@ -84,10 +85,34 @@
           </div>
         </div>
 
-	<div data-role="page" id="sitiospage">
+	    <div data-role="page" id="sitiospage">
           <div data-role="header" data-theme="b">
             <h1>Sitios</h1>
           </div>
+
+          <div data-role="content">
+     	    <div data-role="fieldcontain" id="tipo_sitio">
+	        <fieldset data-role="controlgroup">
+	    	   <legend>Mostrar:</legend>
+	    	   <input type="checkbox" name="parqueadero" id="parqueadero" class="custom" />
+	    	   <label for="parqueadero">Parqueadero</label>
+	    	   <input type="checkbox" name="supermercado" id="supermercado" class="custom" />
+	    	   <label for="supermercado">Super Mercado</label>
+	    	   <input type="checkbox" name="taller" id="taller" class="custom" />
+	    	   <label for="taller">Taller</label>
+	        </fieldset>
+     	    </div>
+     	    <div data-role="fieldcontain">
+               <button id="buscar_sitios" data-theme="b">Buscar</button>
+            </div>
+          </div>
+        </div>
+
+	    <div data-role="page" id="sitiospage2">
+          <div data-role="header" data-theme="b">
+            <h1>Sitios</h1>
+          </div>
+
           <div data-role="content">
     	    <div data-role="fieldcontain">
               <label for="direccion_sitios">Sitios cerca de:</label>
@@ -105,7 +130,7 @@
 	        </fieldset>
      	    </div>
      	    <div data-role="fieldcontain">
-               <button id="buscar_sitios" data-theme="b">Buscar</button>
+               <button id="buscar_sitios2" data-theme="b">Buscar</button>
             </div>
           </div>
         </div>

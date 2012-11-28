@@ -68,34 +68,86 @@ $('#sitiospage').live('pageshow',function(event, ui){
   $('#buscar_sitios').bind('click', function() {
 
     var tipo_sitio = "parking";
-    var longitud = "4.685074068106999";
-    var latitud = "-74.05291557312012";
+    var marcador;
+    var markerslayer = map.getLayer('Markers');
+    if (markerslayer.markers.length > 0) {
+        
+        marcador = markerslayer.markers[0];
+        var lotlang = marcador.lonlat;
+        var lotlangWs84 = new OpenLayers.LonLat(lotlang.lon, lotlang.lat).transform (
+    		                    new OpenLayers.Projection("EPSG:900913"), // transform from WGS 1984
+    	                            new OpenLayers.Projection("EPSG:4326") // to Spherical Mercator Projection
+                         );
+
+        var longfloat = lotlangWs84.lon;
+        longitud = longfloat.toString();
+        var latfloat = lotlangWs84.lat;
+        latitud =latfloat.toString();
+        
+	var preferencia = $("#parqueadero").attr("checked");
+
+	if (( preferencia == "checked") || (preferencia == true)) {
+	   tipo_sitio = "parking";
+	}
+	else {
+	   var preferencia = $("#supermercado").attr("checked");       
+	   if (( preferencia == "checked") || (preferencia == true)) {
+	      tipo_sitio = "marketplace";       
+	   }
+	   else {
+	      tipo_sitio = "hardware_store";       
+	   }       
+	}
+
+	$.mobile.showPageLoadingMsg();
+	$.post('/api/sitios/buscar_por_ubi/',
+		    {'latitud': latitud, 'longitud': longitud, 'tipo_sitio': tipo_sitio},
+		    function(data) {
+		      console.log(data);
+		      addPlaces(data); 
+	$.mobile.hidePageLoadingMsg();
+	$.mobile.changePage('#mappage');}
+	    );
+     }
+     else{
+         alert("Debe definir un marcador en la mapa");
+     }
+  });
+  $('#sitiospage').die('pageshow', arguments.callee);
+});
+
+
+$('#sitiospage2').live('pageshow',function(event, ui){
+  $('#buscar_sitios2').bind('click', function() {
+
+    var tipo_sitio = "parking";
+
+    var direccion = $('#direccion_sitios').val()+', bogota';
     var preferencia = $("#parqueadero").attr("checked");
-    
     if (( preferencia == "checked") || (preferencia == true)) {
-       tipo_sitio = "parking";
+	   tipo_sitio = "parking";
     }
     else {
-       var preferencia = $("#supermercado").attr("checked");       
-       if (( preferencia == "checked") || (preferencia == true)) {
-            tipo_sitio = "marketplace";       
-       }
-       else {
-            tipo_sitio = "hardware_store";       
-       }       
+	var preferencia = $("#supermercado").attr("checked");       
+	if (( preferencia == "checked") || (preferencia == true)) {
+	    tipo_sitio = "marketplace";       
+	}
+	else {
+	      tipo_sitio = "hardware_store";       
+	}       
     }
 
     $.mobile.showPageLoadingMsg();
-    $.post('/api/sitios/buscar_por_ubi/',
-	    {'latitud': latitud, 'longitud': longitud, 'tipo_sitio': tipo_sitio},
-	    function(data) {
-	      console.log(data);
-	      addRoute(data); 
-    $.mobile.hidePageLoadingMsg();
-	      $.mobile.changePage('#mappage');}
-    );
+    $.post('/api/sitios/buscar_por_dir/',
+		    {'direccion': direccion, 'tipo_sitio': tipo_sitio},
+		    function(data) {
+		      console.log(data);
+		      addPlaces(data); 
+	$.mobile.hidePageLoadingMsg();
+	$.mobile.changePage('#mappage');}
+	    );
   });
-  $('#sitiospage').die('pageshow', arguments.callee);
+  $('#sitiospage2').die('pageshow', arguments.callee);
 });
 
 

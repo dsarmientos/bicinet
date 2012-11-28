@@ -142,6 +142,22 @@ var addRoute = function(route) {
       map.addLayer(routeLayer);
       map.zoomToExtent(routeLayer.getDataExtent());
 };
+
+
+var addPlaces = function(sites) {
+      var reader = new OpenLayers.Format.GeoJSON();
+      var features = reader.read(sites);
+      var StyleSitios = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+        {fillColor: "green", fillOpacity: 1, strokeColor: "black"},
+        OpenLayers.Feature.Vector.style["default"]));
+
+      var SitiosLayer = new OpenLayers.Layer.Vector("Sitios", { styleMap: StyleSitios});
+        
+      SitiosLayer.addFeatures(features);
+      map.addLayer(SitiosLayer);
+      map.zoomToExtent(SitiosLayer.getDataExtent());
+};
+   
     
 var activateMarkers = function() {
    var markers = new OpenLayers.Layer.Markers( "Markers" );

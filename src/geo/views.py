@@ -16,7 +16,7 @@ def findNearestSites(latitud, longitud, tipo, radio):
     stringSQL = stringSQL + " " + "WHERE ST_Within(the_geom, ST_buffer(ST_GeomFromText('POINT(" + str(longitudini)
     stringSQL = stringSQL + " " + " " + str(latitudini) + ")', 4326) , " + str(radioN) + " , 'quad_segs=4'))"
     stringSQL += " " + " AND (type = '" + tipo + "' OR type ilike '%%bicycle%%' "
-    stringSQL += "OR type='fuel')"
+    stringSQL += "OR type='fuel')" 
 
     cursor = connection.cursor()
     cursor.execute(stringSQL)
